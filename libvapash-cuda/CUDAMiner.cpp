@@ -26,7 +26,7 @@ using namespace vap;
 
 struct CUDAChannel : public LogChannel
 {
-    static const char* name() { return EthOrange "cu"; }
+    static const char* name() { return VapOrange "cu"; }
     static const int verbosity = 2;
 };
 #define cudalog clog(CUDAChannel)
@@ -414,8 +414,8 @@ void CUDAMiner::search(
 
                     Farm::f().submitProof(
                         Solution{nonce, mixes[i], w, std::chrono::steady_clock::now(), m_index});
-                    cudalog << EthWhite << "Job: " << w.header.abridged() << " Sol: 0x"
-                            << toHex(nonce) << EthReset;
+                    cudalog << VapWhite << "Job: " << w.header.abridged() << " Sol: 0x"
+                            << toHex(nonce) << VapReset;
                 }
             }
         }

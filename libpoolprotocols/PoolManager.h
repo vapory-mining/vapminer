@@ -9,8 +9,8 @@
 #include <libvapcore/Miner.h>
 
 #include "PoolClient.h"
-#include "getwork/EthGetworkClient.h"
-#include "stratum/EthStratumClient.h"
+#include "getwork/VapGetworkClient.h"
+#include "stratum/VapStratumClient.h"
 #include "testing/SimulateClient.h"
 
 using namespace std;

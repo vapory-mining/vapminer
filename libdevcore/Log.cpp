@@ -39,15 +39,15 @@ bool g_logStdout = false;
 
 const char* LogChannel::name()
 {
-    return EthGray "..";
+    return VapGray "..";
 }
 const char* WarnChannel::name()
 {
-    return EthRed " X";
+    return VapRed " X";
 }
 const char* NoteChannel::name()
 {
-    return EthBlue " i";
+    return VapBlue " i";
 }
 
 LogOutputStreamBase::LogOutputStreamBase(char const* _id)
@@ -55,15 +55,15 @@ LogOutputStreamBase::LogOutputStreamBase(char const* _id)
     static std::locale logLocl = std::locale("");
         m_sstr.imbue(logLocl);
         if (g_logSyslog)
-            m_sstr << std::left << std::setw(8) << getThreadName() << " " EthReset;
+            m_sstr << std::left << std::setw(8) << getThreadName() << " " VapReset;
         else
         {
             time_t rawTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
             char buf[24];
             if (strftime(buf, 24, "%X", localtime(&rawTime)) == 0)
                 buf[0] = '\0';  // empty if case strftime fails
-            m_sstr << _id << " " EthViolet << buf << " " EthBlue << std::left << std::setw(8)
-                   << getThreadName() << " " EthReset;
+            m_sstr << _id << " " VapViolet << buf << " " VapBlue << std::left << std::setw(8)
+                   << getThreadName() << " " VapReset;
         }
 }
 

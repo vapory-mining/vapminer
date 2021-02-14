@@ -45,7 +45,7 @@ PoolManager::PoolManager(PoolSettings _settings)
         }
         else
         {
-            cnote << string(EthOrange "Solution 0x") + toHex(sol.nonce)
+            cnote << string(VapOrange "Solution 0x") + toHex(sol.nonce)
                   << " wasted. Waiting for connection...";
         }
 
@@ -197,9 +197,9 @@ void PoolManager::setClientHandlers()
         if (newDiff || newEpoch)
             showMiningAt();
 
-        cnote << "Job: " EthWhite << m_currentWp.header.abridged()
+        cnote << "Job: " VapWhite << m_currentWp.header.abridged()
               << (m_currentWp.block != -1 ? (" block " + to_string(m_currentWp.block)) : "")
-              << EthReset << " " << m_selectedHost;
+              << VapReset << " " << m_selectedHost;
 
         Farm::f().setWork(m_currentWp);
     });
@@ -209,7 +209,7 @@ void PoolManager::setClientHandlers()
             std::stringstream ss;
             ss << std::setw(4) << std::setfill(' ') << _responseDelay.count() << " ms. "
                << m_selectedHost;
-            cnote << EthLime "**Accepted" << (_asStale ? " stale": "") << EthReset << ss.str();
+            cnote << VapLime "**Accepted" << (_asStale ? " stale": "") << VapReset << ss.str();
             Farm::f().accountSolution(_minerIdx, SolutionAccountingEnum::Accepted);
         });
 
@@ -218,7 +218,7 @@ void PoolManager::setClientHandlers()
             std::stringstream ss;
             ss << std::setw(4) << std::setfill(' ') << _responseDelay.count() << " ms. "
                << m_selectedHost;
-            cwarn << EthRed "**Rejected" EthReset << ss.str();
+            cwarn << VapRed "**Rejected" VapReset << ss.str();
             Farm::f().accountSolution(_minerIdx, SolutionAccountingEnum::Rejected);
         });
 }
@@ -420,10 +420,10 @@ void PoolManager::rotateConnect()
 
         if (m_Settings.connections.at(m_activeConnectionIdx)->Family() == ProtocolFamily::GETWORK)
             p_client =
-                std::unique_ptr<PoolClient>(new EthGetworkClient(m_Settings.noWorkTimeout, m_Settings.getWorkPollInterval));
+                std::unique_ptr<PoolClient>(new VapGetworkClient(m_Settings.noWorkTimeout, m_Settings.getWorkPollInterval));
         if (m_Settings.connections.at(m_activeConnectionIdx)->Family() == ProtocolFamily::STRATUM)
             p_client = std::unique_ptr<PoolClient>(
-                new EthStratumClient(m_Settings.noWorkTimeout, m_Settings.noResponseTimeout));
+                new VapStratumClient(m_Settings.noWorkTimeout, m_Settings.noResponseTimeout));
         if (m_Settings.connections.at(m_activeConnectionIdx)->Family() == ProtocolFamily::SIMULATION)
             p_client = std::unique_ptr<PoolClient>(new SimulateClient(m_Settings.benchmarkBlock));
 
@@ -479,8 +479,8 @@ void PoolManager::showMiningAt()
         return;
 
     double d = dev::getHashesToTarget(m_currentWp.boundary.hex(HexPrefix::Add));
-    cnote << "Epoch : " EthWhite << m_currentWp.epoch << EthReset << " Difficulty : " EthWhite
-          << dev::getFormattedHashes(d) << EthReset;
+    cnote << "Epoch : " VapWhite << m_currentWp.epoch << VapReset << " Difficulty : " VapWhite
+          << dev::getFormattedHashes(d) << VapReset;
 }
 
 void PoolManager::failovertimer_elapsed(const boost::system::error_code& ec)

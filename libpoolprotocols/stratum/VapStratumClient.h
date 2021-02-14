@@ -48,7 +48,7 @@ private:
     Verifier verifier_;
 };
 
-class EthStratumClient : public PoolClient
+class VapStratumClient : public PoolClient
 {
 public:
     enum StratumProtocol
@@ -59,7 +59,7 @@ public:
         VAPORYSTRATUM2
     };
 
-    EthStratumClient(int worktimeout, int responsetimeout);
+    VapStratumClient(int worktimeout, int responsetimeout);
 
     void init_socket();
     void connect() override;

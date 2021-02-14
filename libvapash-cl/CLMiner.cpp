@@ -26,7 +26,7 @@ const size_t c_maxSearchResults = 4;
 
 struct CLChannel : public LogChannel
 {
-    static const char* name() { return EthOrange "cl"; }
+    static const char* name() { return VapOrange "cl"; }
     static const int verbosity = 2;
     static const bool debug = false;
 };
@@ -408,8 +408,8 @@ void CLMiner::workLoop()
 
                         Farm::f().submitProof(Solution{
                             nonce, mix, current, std::chrono::steady_clock::now(), m_index});
-                        cllog << EthWhite << "Job: " << current.header.abridged() << " Sol: 0x"
-                              << toHex(nonce) << EthReset;
+                        cllog << VapWhite << "Job: " << current.header.abridged() << " Sol: 0x"
+                              << toHex(nonce) << VapReset;
                     }
                 }
             }

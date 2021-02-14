@@ -33,9 +33,9 @@ void SimulateClient::connect()
 
 void SimulateClient::disconnect()
 {
-    cnote << "Simulation results : " << EthWhiteBold << "Max "
+    cnote << "Simulation results : " << VapWhiteBold << "Max "
           << dev::getFormattedHashes((double)hr_max, ScaleSuffix::Add, 6) << " Mean "
-          << dev::getFormattedHashes((double)hr_mean, ScaleSuffix::Add, 6) << EthReset;
+          << dev::getFormattedHashes((double)hr_mean, ScaleSuffix::Add, 6) << VapReset;
     
     m_conn->addDuration(m_session->duration());
     m_session = nullptr;

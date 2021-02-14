@@ -2,7 +2,7 @@
 #include <libdevcore/Log.h>
 #include <vapash/vapash.hpp>
 
-#include "EthStratumClient.h"
+#include "VapStratumClient.h"
 
 #ifdef _WIN32
 // Needed for certificates validation on TLS connections
@@ -11,7 +11,7 @@
 
 using boost::asio::ip::tcp;
 
-EthStratumClient::EthStratumClient(int worktimeout, int responsetimeout)
+VapStratumClient::VapStratumClient(int worktimeout, int responsetimeout)
   : PoolClient(),
     m_worktimeout(worktimeout),
     m_responsetimeout(responsetimeout),
@@ -29,12 +29,12 @@ EthStratumClient::EthStratumClient(int worktimeout, int responsetimeout)
     // Initialize workloop_timer to infinite wait
     m_workloop_timer.expires_at(boost::posix_time::pos_infin);
     m_workloop_timer.async_wait(m_io_strand.wrap(boost::bind(
-        &EthStratumClient::workloop_timer_elapsed, this, boost::asio::placeholders::error)));
+        &VapStratumClient::workloop_timer_elapsed, this, boost::asio::placeholders::error)));
     clear_response_pleas();
 }
 
 
-void EthStratumClient::init_socket()
+void VapStratumClient::init_socket()
 {
     // Prepare Socket
     if (m_conn->SecLevel() != SecureLevel::NONE)
@@ -121,17 +121,17 @@ void EthStratumClient::init_socket()
 #endif
 }
 
-void EthStratumClient::connect()
+void VapStratumClient::connect()
 {
     // Prevent unnecessary and potentially dangerous recursion
     if (m_connecting.load(std::memory_order::memory_order_relaxed))
         return;
-    DEV_BUILD_LOG_PROGRAMFLOW(cnote, "EthStratumClient::connect() begin");
+    DEV_BUILD_LOG_PROGRAMFLOW(cnote, "VapStratumClient::connect() begin");
 
     // Start timing operations
     m_workloop_timer.expires_from_now(boost::posix_time::milliseconds(m_workloop_interval));
     m_workloop_timer.async_wait(m_io_strand.wrap(boost::bind(
-        &EthStratumClient::workloop_timer_elapsed, this, boost::asio::placeholders::error)));
+        &VapStratumClient::workloop_timer_elapsed, this, boost::asio::placeholders::error)));
 
     // Reset status flags
     m_authpending.store(false, std::memory_order_relaxed);
@@ -155,7 +155,7 @@ void EthStratumClient::connect()
 
         // Start resolving async
         m_resolver.async_resolve(
-            q, m_io_strand.wrap(boost::bind(&EthStratumClient::resolve_handler, this,
+            q, m_io_strand.wrap(boost::bind(&VapStratumClient::resolve_handler, this,
                    boost::asio::placeholders::error, boost::asio::placeholders::iterator)));
     }
     else
@@ -163,13 +163,13 @@ void EthStratumClient::connect()
         // No need to use the resolver if host is already an IP address
         m_endpoints.push(boost::asio::ip::tcp::endpoint(
             boost::asio::ip::address::from_string(m_conn->Host()), m_conn->Port()));
-        m_io_service.post(m_io_strand.wrap(boost::bind(&EthStratumClient::start_connect, this)));
+        m_io_service.post(m_io_strand.wrap(boost::bind(&VapStratumClient::start_connect, this)));
     }
 
-    DEV_BUILD_LOG_PROGRAMFLOW(cnote, "EthStratumClient::connect() end");
+    DEV_BUILD_LOG_PROGRAMFLOW(cnote, "VapStratumClient::connect() end");
 }
 
-void EthStratumClient::disconnect()
+void VapStratumClient::disconnect()
 {
     // Prevent unnecessary recursion
     bool ex = false;
@@ -178,7 +178,7 @@ void EthStratumClient::disconnect()
 
     m_connected.store(false, memory_order_relaxed);
 
-    DEV_BUILD_LOG_PROGRAMFLOW(cnote, "EthStratumClient::disconnect() begin");
+    DEV_BUILD_LOG_PROGRAMFLOW(cnote, "VapStratumClient::disconnect() begin");
 
     // Cancel any outstanding async operation
     if (m_socket)
@@ -196,13 +196,13 @@ void EthStratumClient::disconnect()
                 // If both client and server are connected then we expect the handler with success
                 // As there may be a connection issue we also endorse a timeout
                 m_securesocket->async_shutdown(
-                    m_io_strand.wrap(boost::bind(&EthStratumClient::onSSLShutdownCompleted, this,
+                    m_io_strand.wrap(boost::bind(&VapStratumClient::onSSLShutdownCompleted, this,
                         boost::asio::placeholders::error)));
                 enqueue_response_plea();
 
 
                 // Rest of disconnection is performed asynchronously
-                DEV_BUILD_LOG_PROGRAMFLOW(cnote, "EthStratumClient::disconnect() end");
+                DEV_BUILD_LOG_PROGRAMFLOW(cnote, "VapStratumClient::disconnect() end");
                 return;
             }
             else
@@ -218,10 +218,10 @@ void EthStratumClient::disconnect()
     }
 
     disconnect_finalize();
-    DEV_BUILD_LOG_PROGRAMFLOW(cnote, "EthStratumClient::disconnect() end");
+    DEV_BUILD_LOG_PROGRAMFLOW(cnote, "VapStratumClient::disconnect() end");
 }
 
-void EthStratumClient::disconnect_finalize()
+void VapStratumClient::disconnect_finalize()
 {
     if (m_securesocket && m_securesocket->lowest_layer().is_open())
     {
@@ -261,7 +261,7 @@ void EthStratumClient::disconnect_finalize()
             {
                 m_conn->SetStratumMode(m_conn->StratumMode() - 1);
                 m_io_service.post(
-                    m_io_strand.wrap(boost::bind(&EthStratumClient::start_connect, this)));
+                    m_io_strand.wrap(boost::bind(&VapStratumClient::start_connect, this)));
                 return;
             }
             else
@@ -280,14 +280,14 @@ void EthStratumClient::disconnect_finalize()
     // Put the actor back to sleep
     m_workloop_timer.expires_at(boost::posix_time::pos_infin);
     m_workloop_timer.async_wait(m_io_strand.wrap(boost::bind(
-        &EthStratumClient::workloop_timer_elapsed, this, boost::asio::placeholders::error)));
+        &VapStratumClient::workloop_timer_elapsed, this, boost::asio::placeholders::error)));
 
     // Trigger handlers
     if (m_onDisconnected)
         m_onDisconnected();
 }
 
-void EthStratumClient::resolve_handler(
+void VapStratumClient::resolve_handler(
     const boost::system::error_code& ec, tcp::resolver::iterator i)
 {
     if (!ec)
@@ -300,7 +300,7 @@ void EthStratumClient::resolve_handler(
         m_resolver.cancel();
 
         // Resolver has finished so invoke connection asynchronously
-        m_io_service.post(m_io_strand.wrap(boost::bind(&EthStratumClient::start_connect, this)));
+        m_io_service.post(m_io_strand.wrap(boost::bind(&VapStratumClient::start_connect, this)));
     }
     else
     {
@@ -314,7 +314,7 @@ void EthStratumClient::resolve_handler(
     }
 }
 
-void EthStratumClient::start_connect()
+void VapStratumClient::start_connect()
 {
     if (m_connecting.load(std::memory_order_relaxed))
         return;
@@ -344,12 +344,12 @@ void EthStratumClient::start_connect()
         if (m_conn->SecLevel() != SecureLevel::NONE)
         {
             m_securesocket->lowest_layer().async_connect(m_endpoint,
-                m_io_strand.wrap(boost::bind(&EthStratumClient::connect_handler, this, _1)));
+                m_io_strand.wrap(boost::bind(&VapStratumClient::connect_handler, this, _1)));
         }
         else
         {
             m_socket->async_connect(m_endpoint,
-                m_io_strand.wrap(boost::bind(&EthStratumClient::connect_handler, this, _1)));
+                m_io_strand.wrap(boost::bind(&VapStratumClient::connect_handler, this, _1)));
         }
     }
     else
@@ -362,7 +362,7 @@ void EthStratumClient::start_connect()
     }
 }
 
-void EthStratumClient::workloop_timer_elapsed(const boost::system::error_code& ec)
+void VapStratumClient::workloop_timer_elapsed(const boost::system::error_code& ec)
 {
     using namespace std::chrono;
 
@@ -441,7 +441,7 @@ void EthStratumClient::workloop_timer_elapsed(const boost::system::error_code& e
                     jRes["error"] = true;
                     clear_response_pleas();
                     m_io_service.post(m_io_strand.wrap(
-                        boost::bind(&EthStratumClient::processResponse, this, jRes)));
+                        boost::bind(&VapStratumClient::processResponse, this, jRes)));
                 }
                 else
                 {
@@ -450,7 +450,7 @@ void EthStratumClient::workloop_timer_elapsed(const boost::system::error_code& e
                     m_endpoints.pop();
                     clear_response_pleas();
                     m_io_service.post(
-                        m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+                        m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
                 }
             }
             // No work timeout
@@ -462,7 +462,7 @@ void EthStratumClient::workloop_timer_elapsed(const boost::system::error_code& e
                 m_endpoints.pop();
                 clear_response_pleas();
                 m_io_service.post(
-                    m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+                    m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
             }
         }
     }
@@ -470,12 +470,12 @@ void EthStratumClient::workloop_timer_elapsed(const boost::system::error_code& e
     // Resubmit timing operations
     m_workloop_timer.expires_from_now(boost::posix_time::milliseconds(m_workloop_interval));
     m_workloop_timer.async_wait(m_io_strand.wrap(boost::bind(
-        &EthStratumClient::workloop_timer_elapsed, this, boost::asio::placeholders::error)));
+        &VapStratumClient::workloop_timer_elapsed, this, boost::asio::placeholders::error)));
 }
 
-void EthStratumClient::connect_handler(const boost::system::error_code& ec)
+void VapStratumClient::connect_handler(const boost::system::error_code& ec)
 {
-    DEV_BUILD_LOG_PROGRAMFLOW(cnote, "EthStratumClient::connect_handler() begin");
+    DEV_BUILD_LOG_PROGRAMFLOW(cnote, "VapStratumClient::connect_handler() begin");
 
     // Set status completion
     m_connecting.store(false, std::memory_order_relaxed);
@@ -498,9 +498,9 @@ void EthStratumClient::connect_handler(const boost::system::error_code& ec)
         // Eventually is start_connect which will check for an
         // empty list.
         m_endpoints.pop();
-        m_io_service.post(m_io_strand.wrap(boost::bind(&EthStratumClient::start_connect, this)));
+        m_io_service.post(m_io_strand.wrap(boost::bind(&VapStratumClient::start_connect, this)));
 
-        DEV_BUILD_LOG_PROGRAMFLOW(cnote, "EthStratumClient::connect_handler() end1");
+        DEV_BUILD_LOG_PROGRAMFLOW(cnote, "VapStratumClient::connect_handler() end1");
         return;
     }
 
@@ -558,8 +558,8 @@ void EthStratumClient::connect_handler(const boost::system::error_code& ec)
             // No need to try other IPs as the certificate is based on host-name
             // not ip address. Trying other IPs would end up with the very same error.
             m_conn->MarkUnrecoverable();
-            m_io_service.post(m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
-            DEV_BUILD_LOG_PROGRAMFLOW(cnote, "EthStratumClient::connect_handler() end2");
+            m_io_service.post(m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
+            DEV_BUILD_LOG_PROGRAMFLOW(cnote, "VapStratumClient::connect_handler() end2");
             return;
         }
     }
@@ -581,10 +581,10 @@ void EthStratumClient::connect_handler(const boost::system::error_code& ec)
     Otherwise let's go through an autodetection.
 
     Autodetection process passes all known stratum modes.
-    - 1st pass EthStratumClient::VAPORYSTRATUM2 (3)
-    - 2nd pass EthStratumClient::VAPORYSTRATUM  (2)
-    - 3rd pass EthStratumClient::VAPPROXY         (1)
-    - 4th pass EthStratumClient::STRATUM          (0)
+    - 1st pass VapStratumClient::VAPORYSTRATUM2 (3)
+    - 2nd pass VapStratumClient::VAPORYSTRATUM  (2)
+    - 3rd pass VapStratumClient::VAPPROXY         (1)
+    - 4th pass VapStratumClient::STRATUM          (0)
     */
 
     if (m_conn->Version() < 999)
@@ -606,13 +606,13 @@ void EthStratumClient::connect_handler(const boost::system::error_code& ec)
 
     switch (m_conn->StratumMode())
     {
-    case EthStratumClient::STRATUM:
+    case VapStratumClient::STRATUM:
 
         jReq["jsonrpc"] = "2.0";
 
         break;
 
-    case EthStratumClient::VAPPROXY:
+    case VapStratumClient::VAPPROXY:
 
         jReq["method"] = "vap_submitLogin";
         if (!m_conn->Workername().empty())
@@ -623,14 +623,14 @@ void EthStratumClient::connect_handler(const boost::system::error_code& ec)
 
         break;
 
-    case EthStratumClient::VAPORYSTRATUM:
+    case VapStratumClient::VAPORYSTRATUM:
 
         jReq["params"].append(vapminer_get_buildinfo()->project_name_with_version);
         jReq["params"].append("VaporyStratum/1.0.0");
 
         break;
 
-    case EthStratumClient::VAPORYSTRATUM2:
+    case VapStratumClient::VAPORYSTRATUM2:
 
         jReq["method"] = "mining.hello";
         Json::Value jPrm;
@@ -659,10 +659,10 @@ void EthStratumClient::connect_handler(const boost::system::error_code& ec)
     enqueue_response_plea();
     send(jReq);
 
-    DEV_BUILD_LOG_PROGRAMFLOW(cnote, "EthStratumClient::connect_handler() end");
+    DEV_BUILD_LOG_PROGRAMFLOW(cnote, "VapStratumClient::connect_handler() end");
 }
 
-void EthStratumClient::startSession()
+void VapStratumClient::startSession()
 {
     // Start a new session of data
     m_session = unique_ptr<Session>(new Session());
@@ -673,7 +673,7 @@ void EthStratumClient::startSession()
         m_onConnected();
 }
 
-std::string EthStratumClient::processError(Json::Value& responseObject)
+std::string VapStratumClient::processError(Json::Value& responseObject)
 {
     std::string retVar;
 
@@ -710,15 +710,15 @@ std::string EthStratumClient::processError(Json::Value& responseObject)
     return retVar;
 }
 
-void EthStratumClient::processExtranonce(std::string& enonce)
+void VapStratumClient::processExtranonce(std::string& enonce)
 {
     m_session->extraNonceSizeBytes = enonce.length();
-    cnote << "Extranonce set to " EthWhite << enonce << EthReset;
+    cnote << "Extranonce set to " VapWhite << enonce << VapReset;
     enonce.resize(16, '0');
     m_session->extraNonce = std::stoull(enonce, nullptr, 16);
 }
 
-void EthStratumClient::processResponse(Json::Value& responseObject)
+void VapStratumClient::processResponse(Json::Value& responseObject)
 {
     // Store jsonrpc version to test against
     int _rpcVer = responseObject.isMember("jsonrpc") ? 2 : 1;
@@ -741,7 +741,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
     _isNotification = (_method != "" || _id == unsigned(0));
 
     // Notifications of new jobs are like responses to get_work requests
-    if (_isNotification && _method == "" && m_conn->StratumMode() == EthStratumClient::VAPPROXY &&
+    if (_isNotification && _method == "" && m_conn->StratumMode() == VapStratumClient::VAPPROXY &&
         responseObject["result"].isArray())
     {
         _method = "mining.notify";
@@ -760,7 +760,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
         cwarn << "Do not blame vapminer for this. Ask pool devs to honor http://www.jsonrpc.org/ "
                  "specifications ";
         cwarn << "Disconnecting...";
-        m_io_service.post(m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+        m_io_service.post(m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
         return;
     }
 
@@ -801,7 +801,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     cnote << "Negotiation of VaporyStratum/1.0.0 failed. Trying another ...";
                     break;
                 case VAPPROXY:
-                    cnote << "Negotiation of Eth-Proxy compatible failed. Trying another ...";
+                    cnote << "Negotiation of Vap-Proxy compatible failed. Trying another ...";
                     break;
                 case STRATUM:
                     cnote << "Negotiation of Stratum failed.";
@@ -812,7 +812,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                 }
 
                 m_io_service.post(
-                    m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+                    m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
                 return;
             }
 
@@ -826,7 +826,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
 
             switch (m_conn->StratumMode())
             {
-            case EthStratumClient::VAPORYSTRATUM2:
+            case VapStratumClient::VAPORYSTRATUM2:
 
                 _isSuccess = (jResult.isConvertibleTo(Json::ValueType::objectValue) &&
                               jResult.isMember("proto") &&
@@ -863,13 +863,13 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     }
                     // Disconnect
                     m_io_service.post(
-                        m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+                        m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
                     return;
                 }
 
                 break;
 
-            case EthStratumClient::VAPORYSTRATUM:
+            case VapStratumClient::VAPORYSTRATUM:
 
                 _isSuccess = (jResult.isArray() && jResult[0].isArray() && jResult[0].size() == 3 &&
                               jResult[0].get(Json::Value::ArrayIndex(2), "").asString() ==
@@ -918,19 +918,19 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     }
                     // Disconnect
                     m_io_service.post(
-                        m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+                        m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
                     return;
                 }
 
                 break;
 
-            case EthStratumClient::VAPPROXY:
+            case VapStratumClient::VAPPROXY:
 
                 if (_isSuccess)
                 {
                     // Selected flavour is confirmed
                     m_conn->SetStratumMode(1, true);
-                    cnote << "Stratum mode : Eth-Proxy compatible";
+                    cnote << "Stratum mode : Vap-Proxy compatible";
                     startSession();
 
                     m_session->subscribed.store(true, std::memory_order_relaxed);
@@ -948,23 +948,23 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     if (m_conn->StratumModeConfirmed())
                     {
                         m_conn->MarkUnrecoverable();
-                        cnote << "Negotiation of Eth-Proxy compatible failed. Change your "
+                        cnote << "Negotiation of Vap-Proxy compatible failed. Change your "
                                  "connection parameters";
                     }
                     else
                     {
-                        cnote << "Negotiation of Eth-Proxy compatible failed. Trying "
+                        cnote << "Negotiation of Vap-Proxy compatible failed. Trying "
                                  "another ...";
                     }
                     // Disconnect
                     m_io_service.post(
-                        m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+                        m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
                     return;
                 }
 
                 break;
 
-            case EthStratumClient::STRATUM:
+            case VapStratumClient::STRATUM:
 
                 if (_isSuccess)
                 {
@@ -991,17 +991,17 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     if (m_conn->StratumModeConfirmed())
                     {
                         m_conn->MarkUnrecoverable();
-                        cnote << "Negotiation of Eth-Proxy compatible failed. Change your "
+                        cnote << "Negotiation of Vap-Proxy compatible failed. Change your "
                                  "connection parameters";
                     }
                     else
                     {
-                        cnote << "Negotiation of Eth-Proxy compatible failed. Trying "
+                        cnote << "Negotiation of Vap-Proxy compatible failed. Trying "
                                  "another ...";
                     }
                     // Disconnect
                     m_io_service.post(
-                        m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+                        m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
                     return;
                 }
 
@@ -1041,7 +1041,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     cwarn << "Got invalid or missing session id. Disconnecting ... ";
                     m_conn->MarkUnrecoverable();
                     m_io_service.post(
-                        m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+                        m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
                     return;
                 }
 
@@ -1077,11 +1077,11 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
 
             if (!isAuthorized())
             {
-                cnote << "Worker " << EthWhite << m_conn->UserDotWorker() << EthReset
+                cnote << "Worker " << VapWhite << m_conn->UserDotWorker() << VapReset
                       << " not authorized : " << _errReason;
                 m_conn->MarkUnrecoverable();
                 m_io_service.post(
-                    m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+                    m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
                 return;
             }
             else
@@ -1097,11 +1097,11 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
             if (!_isSuccess || (!jResult.isString() || !jResult.asString().size()))
             {
                 // Got invalid session id which is mandatory
-                cnote << "Worker " << EthWhite << m_conn->UserDotWorker() << EthReset
+                cnote << "Worker " << VapWhite << m_conn->UserDotWorker() << VapReset
                       << " not authorized : " << _errReason;
                 m_conn->MarkUnrecoverable();
                 m_io_service.post(
-                    m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+                    m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
                 return;
             }
             m_authpending.store(false, memory_order_relaxed);
@@ -1180,9 +1180,9 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
         else if (_id == 5)
         {
             // This is the response we get on first get_work request issued
-            // in mode EthStratumClient::VAPPROXY
+            // in mode VapStratumClient::VAPPROXY
             // thus we change it to a mining.notify notification
-            if (m_conn->StratumMode() == EthStratumClient::VAPPROXY &&
+            if (m_conn->StratumMode() == VapStratumClient::VAPPROXY &&
                 responseObject["result"].isArray())
             {
                 _method = "mining.notify";
@@ -1221,7 +1221,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     cnote << "Negotiation of VaporyStratum/1.0.0 failed. Trying another ...";
                     break;
                 case VAPPROXY:
-                    cnote << "Negotiation of Eth-Proxy compatible failed. Trying another ...";
+                    cnote << "Negotiation of Vap-Proxy compatible failed. Trying another ...";
                     break;
                 case STRATUM:
                     cnote << "Negotiation of Stratum failed.";
@@ -1232,7 +1232,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                 }
 
                 m_io_service.post(
-                    m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+                    m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
                 return;
             }
 
@@ -1244,7 +1244,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     cnote << "Subscription failed : "
                           << (_errReason.empty() ? "Unspecified error" : _errReason);
                     m_io_service.post(
-                        m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+                        m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
                     return;
                 }
                 else if (isSubscribed() && !isAuthorized())
@@ -1253,7 +1253,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     cnote << "Worker not authorized : "
                           << (_errReason.empty() ? "Unspecified error" : _errReason);
                     m_io_service.post(
-                        m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+                        m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
                     return;
                 }
             };
@@ -1297,7 +1297,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
             see issue # 1348
             */
 
-            if (m_conn->StratumMode() == EthStratumClient::VAPPROXY &&
+            if (m_conn->StratumMode() == VapStratumClient::VAPPROXY &&
                 responseObject.isMember("result"))
             {
                 jPrm = responseObject.get("result", Json::Value::null);
@@ -1314,7 +1314,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
             {
                 m_current.job = jPrm.get(Json::Value::ArrayIndex(0), "").asString();
 
-                if (m_conn->StratumMode() == EthStratumClient::VAPORYSTRATUM)
+                if (m_conn->StratumMode() == VapStratumClient::VAPORYSTRATUM)
                 {
                     string sSeedHash = jPrm.get(Json::Value::ArrayIndex(1), "").asString();
                     string sHeaderHash = jPrm.get(Json::Value::ArrayIndex(2), "").asString();
@@ -1344,7 +1344,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     // Only some vap-proxy compatible implementations carry the block number
                     // namely vapermine.org
                     m_current.block = -1;
-                    if (m_conn->StratumMode() == EthStratumClient::VAPPROXY &&
+                    if (m_conn->StratumMode() == VapStratumClient::VAPPROXY &&
                         jPrm.size() > prmIdx &&
                         jPrm.get(Json::Value::ArrayIndex(prmIdx), "").asString().substr(0, 2) ==
                             "0x")
@@ -1434,7 +1434,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
         }
         else if (_method == "mining.set_difficulty" && m_conn->StratumMode() == VAPORYSTRATUM)
         {
-            if (m_conn->StratumMode() == EthStratumClient::VAPORYSTRATUM)
+            if (m_conn->StratumMode() == VapStratumClient::VAPORYSTRATUM)
             {
                 jPrm = responseObject.get("params", Json::Value::null);
                 if (jPrm.isArray())
@@ -1453,7 +1453,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     m_conn->MarkUnrecoverable();
                 }
                 m_io_service.post(
-                    m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+                    m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
             }
         }
         else if (_method == "mining.set_extranonce" && m_conn->StratumMode() == VAPORYSTRATUM)
@@ -1511,7 +1511,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
         else if (_method == "mining.bye" && m_conn->StratumMode() == VAPORYSTRATUM2)
         {
             cnote << m_conn->Host() << " requested connection close. Disconnecting ...";
-            m_io_service.post(m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+            m_io_service.post(m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
         }
         else if (_method == "client.get_version")
         {
@@ -1545,7 +1545,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
     }
 }
 
-void EthStratumClient::submitHashrate(uint64_t const& rate, string const& id)
+void VapStratumClient::submitHashrate(uint64_t const& rate, string const& id)
 {
     if (!isConnected())
         return;
@@ -1589,7 +1589,7 @@ void EthStratumClient::submitHashrate(uint64_t const& rate, string const& id)
     send(jReq);
 }
 
-void EthStratumClient::submitSolution(const Solution& solution)
+void VapStratumClient::submitSolution(const Solution& solution)
 {
     if (!isAuthorized())
     {
@@ -1607,7 +1607,7 @@ void EthStratumClient::submitSolution(const Solution& solution)
 
     switch (m_conn->StratumMode())
     {
-    case EthStratumClient::STRATUM:
+    case VapStratumClient::STRATUM:
 
         jReq["jsonrpc"] = "2.0";
         jReq["params"].append(m_conn->User());
@@ -1620,7 +1620,7 @@ void EthStratumClient::submitSolution(const Solution& solution)
 
         break;
 
-    case EthStratumClient::VAPPROXY:
+    case VapStratumClient::VAPPROXY:
 
         jReq["method"] = "vap_submitWork";
         jReq["params"].append(toHex(solution.nonce, HexPrefix::Add));
@@ -1631,7 +1631,7 @@ void EthStratumClient::submitSolution(const Solution& solution)
 
         break;
 
-    case EthStratumClient::VAPORYSTRATUM:
+    case VapStratumClient::VAPORYSTRATUM:
 
         jReq["params"].append(m_conn->UserDotWorker());
         jReq["params"].append(solution.work.job);
@@ -1639,7 +1639,7 @@ void EthStratumClient::submitSolution(const Solution& solution)
             toHex(solution.nonce, HexPrefix::DontAdd).substr(solution.work.exSizeBytes));
         break;
         
-    case EthStratumClient::VAPORYSTRATUM2:
+    case VapStratumClient::VAPORYSTRATUM2:
 
         jReq["params"].append(solution.work.job);
         jReq["params"].append(
@@ -1652,23 +1652,23 @@ void EthStratumClient::submitSolution(const Solution& solution)
     send(jReq);
 }
 
-void EthStratumClient::recvSocketData()
+void VapStratumClient::recvSocketData()
 {
     if (m_conn->SecLevel() != SecureLevel::NONE)
     {
         async_read(*m_securesocket, m_recvBuffer, boost::asio::transfer_at_least(1),
-            m_io_strand.wrap(boost::bind(&EthStratumClient::onRecvSocketDataCompleted, this,
+            m_io_strand.wrap(boost::bind(&VapStratumClient::onRecvSocketDataCompleted, this,
                 boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)));
     }
     else
     {
         async_read(*m_nonsecuresocket, m_recvBuffer, boost::asio::transfer_at_least(1),
-            m_io_strand.wrap(boost::bind(&EthStratumClient::onRecvSocketDataCompleted, this,
+            m_io_strand.wrap(boost::bind(&VapStratumClient::onRecvSocketDataCompleted, this,
                 boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)));
     }
 }
 
-void EthStratumClient::onRecvSocketDataCompleted(
+void VapStratumClient::onRecvSocketDataCompleted(
     const boost::system::error_code& ec, std::size_t bytes_transferred)
 {
     // Due to the nature of io_service's queue and
@@ -1782,12 +1782,12 @@ void EthStratumClient::onRecvSocketDataCompleted(
             {
                 cwarn << "Socket read failed: " << ec.message();
             }
-            m_io_service.post(m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+            m_io_service.post(m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
         }
     }
 }
 
-void EthStratumClient::send(Json::Value const& jReq)
+void VapStratumClient::send(Json::Value const& jReq)
 {
     std::string* line = new std::string(Json::writeString(m_jSwBuilder, jReq));
     m_txQueue.push(line);
@@ -1797,7 +1797,7 @@ void EthStratumClient::send(Json::Value const& jReq)
         sendSocketData();
 }
 
-void EthStratumClient::sendSocketData()
+void VapStratumClient::sendSocketData()
 {
     if (!isConnected() || m_txQueue.empty())
     {
@@ -1822,18 +1822,18 @@ void EthStratumClient::sendSocketData()
     if (m_conn->SecLevel() != SecureLevel::NONE)
     {
         async_write(*m_securesocket, m_sendBuffer,
-            m_io_strand.wrap(boost::bind(&EthStratumClient::onSendSocketDataCompleted, this,
+            m_io_strand.wrap(boost::bind(&VapStratumClient::onSendSocketDataCompleted, this,
                 boost::asio::placeholders::error)));
     }
     else
     {
         async_write(*m_nonsecuresocket, m_sendBuffer,
-            m_io_strand.wrap(boost::bind(&EthStratumClient::onSendSocketDataCompleted, this,
+            m_io_strand.wrap(boost::bind(&VapStratumClient::onSendSocketDataCompleted, this,
                 boost::asio::placeholders::error)));
     }
 }
 
-void EthStratumClient::onSendSocketDataCompleted(const boost::system::error_code& ec)
+void VapStratumClient::onSendSocketDataCompleted(const boost::system::error_code& ec)
 {
     if (ec)
     {
@@ -1845,13 +1845,13 @@ void EthStratumClient::onSendSocketDataCompleted(const boost::system::error_code
             (SSL_R_PROTOCOL_IS_SHUTDOWN == ERR_GET_REASON(ec.value())))
         {
             cnote << "SSL Stream error : " << ec.message();
-            m_io_service.post(m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+            m_io_service.post(m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
         }
 
         if (isConnected())
         {
             cwarn << "Socket write failed : " << ec.message();
-            m_io_service.post(m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
+            m_io_service.post(m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect, this)));
         }
     }
     else
@@ -1868,14 +1868,14 @@ void EthStratumClient::onSendSocketDataCompleted(const boost::system::error_code
     }
 }
 
-void EthStratumClient::onSSLShutdownCompleted(const boost::system::error_code& ec)
+void VapStratumClient::onSSLShutdownCompleted(const boost::system::error_code& ec)
 {
     (void)ec;
     clear_response_pleas();
-    m_io_service.post(m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect_finalize, this)));
+    m_io_service.post(m_io_strand.wrap(boost::bind(&VapStratumClient::disconnect_finalize, this)));
 }
 
-void EthStratumClient::enqueue_response_plea()
+void VapStratumClient::enqueue_response_plea()
 {
     using namespace std::chrono;
     steady_clock::time_point response_plea_time = steady_clock::now();
@@ -1887,7 +1887,7 @@ void EthStratumClient::enqueue_response_plea()
     m_response_plea_times.push(response_plea_time);
 }
 
-std::chrono::milliseconds EthStratumClient::dequeue_response_plea()
+std::chrono::milliseconds VapStratumClient::dequeue_response_plea()
 {
     using namespace std::chrono;
 
@@ -1912,7 +1912,7 @@ std::chrono::milliseconds EthStratumClient::dequeue_response_plea()
     }
 }
 
-void EthStratumClient::clear_response_pleas()
+void VapStratumClient::clear_response_pleas()
 {
     using namespace std::chrono;
     steady_clock::time_point response_plea_time;

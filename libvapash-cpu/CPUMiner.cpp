@@ -165,7 +165,7 @@ unsigned CPUMiner::getNumDevices()
 
 struct CPUChannel : public LogChannel
 {
-    static const char* name() { return EthOrange "cp"; }
+    static const char* name() { return VapOrange "cp"; }
     static const int verbosity = 2;
 };
 #define cpulog clog(CPUChannel)
@@ -284,8 +284,8 @@ void CPUMiner::search(const dev::vap::WorkPackage& w)
             h256 mix{reinterpret_cast<byte*>(r.mix_hash.bytes), h256::ConstructFromPointer};
             auto sol = Solution{r.nonce, mix, w, std::chrono::steady_clock::now(), m_index};
 
-            cpulog << EthWhite << "Job: " << w.header.abridged()
-                   << " Sol: " << toHex(sol.nonce, HexPrefix::Add) << EthReset;
+            cpulog << VapWhite << "Job: " << w.header.abridged()
+                   << " Sol: " << toHex(sol.nonce, HexPrefix::Add) << VapReset;
             Farm::f().submitProof(sol);
         }
         nonce += blocksize;

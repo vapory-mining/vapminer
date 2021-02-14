@@ -16,11 +16,11 @@ using namespace std;
 using namespace dev;
 using namespace vap;
 
-class EthGetworkClient : public PoolClient
+class VapGetworkClient : public PoolClient
 {
 public:
-    EthGetworkClient(int worktimeout, unsigned farmRecheckPeriod);
-    ~EthGetworkClient();
+    VapGetworkClient(int worktimeout, unsigned farmRecheckPeriod);
+    ~VapGetworkClient();
 
     void connect() override;
     void disconnect() override;

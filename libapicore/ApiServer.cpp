@@ -965,15 +965,15 @@ Json::Value ApiConnection::getMinerStat1()
         std::chrono::duration_cast<std::chrono::minutes>(steady_clock::now() - t.start);
 
 
-    ostringstream totalMhEth;
+    ostringstream totalMhVap;
     ostringstream totalMhDcr;
-    ostringstream detailedMhEth;
+    ostringstream detailedMhVap;
     ostringstream detailedMhDcr;
     ostringstream tempAndFans;
     ostringstream poolAddresses;
     ostringstream invalidStats;
 
-    totalMhEth << std::fixed << std::setprecision(0) << t.farm.hashrate / 1000.0f << ";"
+    totalMhVap << std::fixed << std::setprecision(0) << t.farm.hashrate / 1000.0f << ";"
                << t.farm.solutions.accepted << ";" << t.farm.solutions.rejected;
     totalMhDcr << "0;0;0";                            // DualMining not supported
     invalidStats << t.farm.solutions.failed << ";0";  // Invalid + Pool switches
@@ -985,7 +985,7 @@ Json::Value ApiConnection::getMinerStat1()
 
     for (gpuIndex = 0; gpuIndex < numGpus; gpuIndex++)
     {
-        detailedMhEth << std::fixed << std::setprecision(0)
+        detailedMhVap << std::fixed << std::setprecision(0)
                       << t.miners.at(gpuIndex).hashrate / 1000.0f
                       << (((numGpus - 1) > gpuIndex) ? ";" : "");
         detailedMhDcr << "off"
@@ -1003,9 +1003,9 @@ Json::Value ApiConnection::getMinerStat1()
 
     jRes[0] = vapminer_get_buildinfo()->project_name_with_version;  // miner version.
     jRes[1] = toString(runningTime.count());                        // running time, in minutes.
-    jRes[2] = totalMhEth.str();  // total ETH hashrate in MH/s, number of ETH shares, number of ETH
+    jRes[2] = totalMhVap.str();  // total ETH hashrate in MH/s, number of ETH shares, number of ETH
                                  // rejected shares.
-    jRes[3] = detailedMhEth.str();  // detailed ETH hashrate for all GPUs.
+    jRes[3] = detailedMhVap.str();  // detailed ETH hashrate for all GPUs.
     jRes[4] = totalMhDcr.str();  // total DCR hashrate in MH/s, number of DCR shares, number of DCR
                                  // rejected shares.
     jRes[5] = detailedMhDcr.str();  // detailed DCR hashrate for all GPUs.

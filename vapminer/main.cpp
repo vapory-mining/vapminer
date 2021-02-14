@@ -61,7 +61,7 @@ boost::asio::io_service g_io_service;  // The IO service itself
 
 struct MiningChannel : public LogChannel
 {
-    static const char* name() { return EthGreen " m"; }
+    static const char* name() { return VapGreen " m"; }
     static const int verbosity = 2;
 };
 
@@ -1193,7 +1193,7 @@ public:
                  << "    Stratum variants :" << endl
                  << endl
                  << "        stratum     Stratum" << endl
-                 << "        stratum1    Eth Proxy compatible" << endl
+                 << "        stratum1    Vap Proxy compatible" << endl
                  << "        stratum2    VaporyStratum 1.0.0 (nicehash)" << endl
                  << "        stratum3    VaporyStratum 2.0.0" << endl
                  << endl
