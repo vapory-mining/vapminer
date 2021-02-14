@@ -1,12 +1,12 @@
-# ethminer
+# vapminer
 
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg)](https://github.com/RichardLitt/standard-readme)
 [![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)][Gitter]
-[![Releases](https://img.shields.io/github/downloads/ethereum-mining/ethminer/total.svg)][Releases]
+[![Releases](https://img.shields.io/github/downloads/vapory-mining/vapminer/total.svg)][Releases]
 
-> Ethereum miner with OpenCL, CUDA and stratum support
+> Vapory miner with OpenCL, CUDA and stratum support
 
-**Ethminer** is an Ethash GPU mining worker: with ethminer you can mine every coin which relies on an Ethash Proof of Work thus including Ethereum, Ethereum Classic, Metaverse, Musicoin, Ellaism, Pirl, Expanse and others. This is the actively maintained version of ethminer. It originates from [cpp-ethereum] project (where GPU mining has been discontinued) and builds on the improvements made in [Genoil's fork]. See [FAQ](#faq) for more details.
+**Ethminer** is an Vapash GPU mining worker: with vapminer you can mine every coin which relies on an Vapash Proof of Work thus including Vapory. This is the actively maintained version of vapminer. It originates from [cpp-vapory] project (where GPU mining has been discontinued) and builds on the improvements made in [Genoil's fork]. See [FAQ](#faq) for more details.
 
 ## Features
 
@@ -34,28 +34,28 @@
 
 ## Install
 
-[![Releases](https://img.shields.io/github/downloads/ethereum-mining/ethminer/total.svg)][Releases]
+[![Releases](https://img.shields.io/github/downloads/vapory-mining/vapminer/total.svg)][Releases]
 
 Standalone **executables** for *Linux*, *macOS* and *Windows* are provided in
 the [Releases] section.
 Download an archive for your operating system and unpack the content to a place
-accessible from command line. The ethminer is ready to go.
+accessible from command line. The vapminer is ready to go.
 
 | Builds | Release | Date |
 | ------ | ------- | ---- |
-| Last   | [![GitHub release](https://img.shields.io/github/release/ethereum-mining/ethminer/all.svg)](https://github.com/ethereum-mining/ethminer/releases) | [![GitHub Release Date](https://img.shields.io/github/release-date-pre/ethereum-mining/ethminer.svg)](https://github.com/ethereum-mining/ethminer/releases) |
-| Stable | [![GitHub release](https://img.shields.io/github/release/ethereum-mining/ethminer.svg)](https://github.com/ethereum-mining/ethminer/releases/latest) | [![GitHub Release Date](https://img.shields.io/github/release-date/ethereum-mining/ethminer.svg)](https://github.com/ethereum-mining/ethminer/releases/latest) |
+| Last   | [![GitHub release](https://img.shields.io/github/release/vapory-mining/vapminer/all.svg)](https://github.com/vapory-mining/vapminer/releases) | [![GitHub Release Date](https://img.shields.io/github/release-date-pre/vapory-mining/vapminer.svg)](https://github.com/vapory-mining/vapminer/releases) |
+| Stable | [![GitHub release](https://img.shields.io/github/release/vapory-mining/vapminer.svg)](https://github.com/vapory-mining/vapminer/releases/latest) | [![GitHub Release Date](https://img.shields.io/github/release-date/vapory-mining/vapminer.svg)](https://github.com/vapory-mining/vapminer/releases/latest) |
 
 
 ## Usage
 
-The **ethminer** is a command line program. This means you launch it either
+The **vapminer** is a command line program. This means you launch it either
 from a Windows command prompt or Linux console, or create shortcuts to
 predefined command lines using a Linux Bash script or Windows batch/cmd file.
 For a full list of available command, please run:
 
 ```sh
-ethminer --help
+vapminer --help
 ```
 
 ### Examples connecting to pools
@@ -68,10 +68,10 @@ Check our [samples](docs/POOL_EXAMPLES_ETH.md) to see how to connect to differen
 
 | CI            | OS            | Status  | Development builds |
 | ------------- | ------------- | -----   | -----------------  |
-| [Travis CI]   | Linux, macOS  | [![Travis CI](https://img.shields.io/travis/ethereum-mining/ethminer/master.svg)][Travis CI]    | ✗ No build artifacts, [Amazon S3 is needed] for this |
-| [AppVeyor]    | Windows       | [![AppVeyor](https://img.shields.io/appveyor/ci/ethereum-mining/ethminer/master.svg)][AppVeyor] | ✓ Build artifacts available for all PRs and branches |
+| [Travis CI]   | Linux, macOS  | [![Travis CI](https://img.shields.io/travis/vapory-mining/vapminer/master.svg)][Travis CI]    | ✗ No build artifacts, [Amazon S3 is needed] for this |
+| [AppVeyor]    | Windows       | [![AppVeyor](https://img.shields.io/appveyor/ci/vapory-mining/vapminer/master.svg)][AppVeyor] | ✓ Build artifacts available for all PRs and branches |
 
-The AppVeyor system automatically builds a Windows .exe for every commit. The latest version is always available [on the landing page](https://ci.appveyor.com/project/ethereum-mining/ethminer) or you can [browse the history](https://ci.appveyor.com/project/ethereum-mining/ethminer/history) to access previous builds.
+The AppVeyor system automatically builds a Windows .exe for every commit. The latest version is always available [on the landing page](https://ci.appveyor.com/project/vapory-mining/vapminer) or you can [browse the history](https://ci.appveyor.com/project/vapory-mining/vapminer/history) to access previous builds.
 
 To download the .exe on a build under `Job name` select the CUDA version you use, choose `Artifacts` then download the zip file.
 
@@ -81,9 +81,9 @@ See [docs/BUILD.md](docs/BUILD.md) for build/compilation details.
 
 ## Maintainers & Authors
 
-[![Gitter](https://img.shields.io/gitter/room/ethereum-mining/ethminer.svg)][Gitter]
+[![Gitter](https://img.shields.io/gitter/room/vapory-mining/vapminer.svg)][Gitter]
 
-The list of current and past maintainers, authors and contributors to the ethminer project.
+The list of current and past maintainers, authors and contributors to the vapminer project.
 Ordered alphabetically. [Contributors statistics since 2015-08-20].
 
 | Name                  | Contact                                                      |     |
@@ -100,9 +100,9 @@ Ordered alphabetically. [Contributors statistics since 2015-08-20].
 
 ## Contribute
 
-[![Gitter](https://img.shields.io/gitter/room/ethereum-mining/ethminer.svg)][Gitter]
+[![Gitter](https://img.shields.io/gitter/room/vapory-mining/vapminer.svg)][Gitter]
 
-To meet the community, ask general questions and chat about ethminer join [the ethminer channel on Gitter][Gitter].
+To meet the community, ask general questions and chat about vapminer join [the vapminer channel on Gitter][Gitter].
 
 All bug reports, pull requests and code reviews are very much welcome.
 
@@ -143,13 +143,13 @@ The default parameters are fine in most scenario's (CUDA). For OpenCL it varies 
 
 [@davilizh](https://github.com/davilizh) made improvements to the CUDA kernel hashing process and added this flag to allow changing the number of tasks it runs in parallel. These improvements were optimised for GTX 1060 GPUs which saw a large increase in hashrate, GTX 1070 and GTX 1080/Ti GPUs saw some, but less, improvement. The default value is 4 (which does not need to be set with the flag) and in most cases this will provide the best performance.
 
-### What is ethminer's relationship with [Genoil's fork]?
+### What is vapminer's relationship with [Genoil's fork]?
 
 [Genoil's fork] was the original source of this version, but as Genoil is no longer consistently maintaining that fork it became almost impossible for developers to get new code merged there. In the interests of progressing development without waiting for reviews this fork should be considered the active one and Genoil's as legacy code.
 
 ### Can I CPU Mine?
 
-No, use geth, the go program made for ethereum by ethereum.
+No, use gvsp, the go program made for vapory by vapory.
 
 ### CUDA GPU order changes sometimes. What can I do?
 
@@ -164,11 +164,11 @@ This can be done with one of the 2 ways:
 
 * Linux:
     * Adapt the `/etc/environment` file and add a line `CUDA_DEVICE_ORDER=PCI_BUS_ID`
-    * Adapt your start script launching ethminer and add a line `export CUDA_DEVICE_ORDER=PCI_BUS_ID`
+    * Adapt your start script launching vapminer and add a line `export CUDA_DEVICE_ORDER=PCI_BUS_ID`
 
 * Windows:
     * Adapt your environment using the control panel (just search `setting environment windows control panel` using your favorite search engine)
-    * Adapt your start (.bat) file launching ethminer and add a line `set CUDA_DEVICE_ORDER=PCI_BUS_ID` or `setx CUDA_DEVICE_ORDER PCI_BUS_ID`. For more info about `set` see [here](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/set_1), for more info about `setx` see [here](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/setx)
+    * Adapt your start (.bat) file launching vapminer and add a line `set CUDA_DEVICE_ORDER=PCI_BUS_ID` or `setx CUDA_DEVICE_ORDER PCI_BUS_ID`. For more info about `set` see [here](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/set_1), for more info about `setx` see [here](https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/setx)
 
 ### Insufficient CUDA driver
 
@@ -180,10 +180,10 @@ You have to upgrade your Nvidia drivers. On Linux, install `nvidia-396` package 
 
 
 [Amazon S3 is needed]: https://docs.travis-ci.com/user/uploading-artifacts/
-[AppVeyor]: https://ci.appveyor.com/project/ethereum-mining/ethminer
-[cpp-ethereum]: https://github.com/ethereum/cpp-ethereum
-[Contributors statistics since 2015-08-20]: https://github.com/ethereum-mining/ethminer/graphs/contributors?from=2015-08-20
+[AppVeyor]: https://ci.appveyor.com/project/vapory-mining/vapminer
+[cpp-vapory]: https://github.com/vaporyco/cpp-vapory
+[Contributors statistics since 2015-08-20]: https://github.com/vapory-mining/vapminer/graphs/contributors?from=2015-08-20
 [Genoil's fork]: https://github.com/Genoil/cpp-ethereum
-[Gitter]: https://gitter.im/ethereum-mining/ethminer
-[Releases]: https://github.com/ethereum-mining/ethminer/releases
-[Travis CI]: https://travis-ci.org/ethereum-mining/ethminer
+[Gitter]: https://gitter.im/vapory-mining/vapminer
+[Releases]: https://github.com/vapory-mining/vapminer/releases
+[Travis CI]: https://travis-ci.org/vapory-mining/vapminer
