@@ -8,12 +8,12 @@
 
 #include <json/json.h>
 
-#include <libethcore/Farm.h>
-#include <libethcore/Miner.h>
+#include <libvapcore/Farm.h>
+#include <libvapcore/Miner.h>
 #include <libpoolprotocols/PoolManager.h>
 
 using namespace dev;
-using namespace dev::eth;
+using namespace dev::vap;
 using namespace std::chrono;
 
 using boost::asio::ip::tcp;

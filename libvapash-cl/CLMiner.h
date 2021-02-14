@@ -8,8 +8,8 @@
 #include <fstream>
 
 #include <libdevcore/Worker.h>
-#include <libethcore/EthashAux.h>
-#include <libethcore/Miner.h>
+#include <libvapcore/VapashAux.h>
+#include <libvapcore/Miner.h>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/lexical_cast.hpp>
@@ -38,7 +38,7 @@
 
 namespace dev
 {
-namespace eth
+namespace vap
 {
 class CLMiner : public Miner
 {
@@ -89,5 +89,5 @@ private:
 
 };
 
-}  // namespace eth
+}  // namespace vap
 }  // namespace dev

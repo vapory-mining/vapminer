@@ -5,18 +5,18 @@
 
 #include <boost/dll.hpp>
 
-#include <libethcore/Farm.h>
-#include <ethash/ethash.hpp>
+#include <libvapcore/Farm.h>
+#include <vapash/vapash.hpp>
 
 #include "CLMiner.h"
-#include "ethash.h"
+#include "vapash.h"
 
 using namespace dev;
-using namespace eth;
+using namespace vap;
 
 namespace dev
 {
-namespace eth
+namespace vap
 {
 
 // WARNING: Do not change the value of the following constant
@@ -192,7 +192,7 @@ static const char* strClError(cl_int err)
  * Prints errors in the format:
  *      msg: what(), string err() (numeric err())
  */
-static std::string ethCLErrorHelper(const char* msg, cl::Error const& clerr)
+static std::string vapCLErrorHelper(const char* msg, cl::Error const& clerr)
 {
     std::ostringstream osstream;
     osstream << msg << ": " << clerr.what() << ": " << strClError(clerr.err()) << " ("
@@ -249,7 +249,7 @@ std::vector<cl::Device> getDevices(
 
 }  // namespace
 
-}  // namespace eth
+}  // namespace vap
 }  // namespace dev
 
 CLMiner::CLMiner(unsigned _index, CLSettings _settings, DeviceDescriptor& _device)
@@ -269,7 +269,7 @@ CLMiner::~CLMiner()
 }
 
 // NOTE: The following struct must match the one defined in
-// ethash.cl
+// vapash.cl
 struct SearchResults
 {
     struct
@@ -432,7 +432,7 @@ void CLMiner::workLoop()
     }
     catch (cl::Error const& _e)
     {
-        string _what = ethCLErrorHelper("OpenCL Error", _e);
+        string _what = vapCLErrorHelper("OpenCL Error", _e);
         clear_buffer();
         throw std::runtime_error(_what);
     }
@@ -758,12 +758,12 @@ bool CLMiner::initEpoch_internal()
         // patch source code
         // note: The kernels here are simply compiled version of the respective .cl kernels
         // into a byte array by bin2h.cmake. There is no need to load the file by hand in runtime
-        // See libethash-cl/CMakeLists.txt: add_custom_command()
+        // See libvapash-cl/CMakeLists.txt: add_custom_command()
         // TODO: Just use C++ raw string literal.
         string code;
 
         cllog << "OpenCL kernel";
-        code = string(ethash_cl, ethash_cl + sizeof(ethash_cl));
+        code = string(vapash_cl, vapash_cl + sizeof(vapash_cl));
 
         addDefinition(code, "WORKSIZE", m_settings.localWorkSize);
         addDefinition(code, "ACCESSES", 64);
@@ -806,10 +806,10 @@ bool CLMiner::initEpoch_internal()
             vector<unsigned char> bin_data;
             std::stringstream fname_strm;
 
-            /* Open kernels/ethash_{devicename}_lws{local_work_size}.bin */
+            /* Open kernels/vapash_{devicename}_lws{local_work_size}.bin */
             std::transform(device_name.begin(), device_name.end(), device_name.begin(), ::tolower);
             fname_strm << boost::dll::program_location().parent_path().string()
-                       << "/kernels/ethash_" << device_name << "_lws" << m_settings.localWorkSize
+                       << "/kernels/vapash_" << device_name << "_lws" << m_settings.localWorkSize
                        << (m_settings.noExit ? "" : "_exit") << ".bin";
             cllog << "Loading binary kernel " << fname_strm.str();
             try
@@ -921,7 +921,7 @@ bool CLMiner::initEpoch_internal()
         }
         catch (cl::Error const& err)
         {
-            cwarn << ethCLErrorHelper("Creating DAG buffer failed", err);
+            cwarn << vapCLErrorHelper("Creating DAG buffer failed", err);
             pause(MinerPauseEnum::PauseDueToInitEpochError);
             return true;
         }
@@ -973,7 +973,7 @@ bool CLMiner::initEpoch_internal()
     }
     catch (cl::Error const& err)
     {
-        cllog << ethCLErrorHelper("OpenCL init failed", err);
+        cllog << vapCLErrorHelper("OpenCL init failed", err);
         pause(MinerPauseEnum::PauseDueToInitEpochError);
         return false;
     }

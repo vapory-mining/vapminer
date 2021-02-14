@@ -6,7 +6,7 @@
 
 > Vapory miner with OpenCL, CUDA and stratum support
 
-**Ethminer** is an Vapash GPU mining worker: with vapminer you can mine every coin which relies on an Vapash Proof of Work thus including Vapory. This is the actively maintained version of vapminer. It originates from [cpp-vapory] project (where GPU mining has been discontinued) and builds on the improvements made in [Genoil's fork]. See [FAQ](#faq) for more details.
+**Vapminer** is an Vapash GPU mining worker: with vapminer you can mine every coin which relies on an Vapash Proof of Work thus including Vapory. This is the actively maintained version of vapminer. It originates from [cpp-vapory] project (where GPU mining has been discontinued) and builds on the improvements made in [Genoil's fork]. See [FAQ](#faq) for more details.
 
 ## Features
 

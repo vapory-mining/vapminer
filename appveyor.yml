@@ -41,17 +41,17 @@ install: |
 
 build_script:
   - call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\Common7\Tools\VsMSBuildCmd.bat"
-  - set CMAKE_ARGS=-G "Visual Studio 15 2017 Win64" -H. -Bbuild -DETHASHCUDA=ON -DAPICORE=ON -DHUNTER_JOBS_NUMBER=%NUMBER_OF_PROCESSORS%
+  - set CMAKE_ARGS=-G "Visual Studio 15 2017 Win64" -H. -Bbuild -DVAPASHCUDA=ON -DAPICORE=ON -DHUNTER_JOBS_NUMBER=%NUMBER_OF_PROCESSORS%
   - if "%CUDA_VER%" NEQ "10.0" set CMAKE_ARGS=%CMAKE_ARGS% -T v140
   - cmake %CMAKE_ARGS%
   - cmake --build build --config Release --target package
   - ps: |
-      . build/ethminer/buildinfo.ps1
-      mv build/ethminer.zip build/$env:project_name-$env:project_version-cuda$env:CUDA_VER-$env:system_name-$env:system_processor.zip
+      . build/vapminer/buildinfo.ps1
+      mv build/vapminer.zip build/$env:project_name-$env:project_version-cuda$env:CUDA_VER-$env:system_name-$env:system_processor.zip
 
 artifacts:
-  - path: build/ethminer-*.zip
-    name: ethminer
+  - path: build/vapminer-*.zip
+    name: vapminer
 
 deploy:
   # Create GitHub release, also set the release name and description.
@@ -62,7 +62,7 @@ deploy:
   force_update: true  # Force update in case Travis CI created the release before.
   prerelease: $(project_version_is_prerelease)
   draft: false
-  artifact: ethminer
+  artifact: vapminer
   auth_token:
     secure: uDRcvbW+9GIyKlZ9guJfWOQ6jg0An6eULg6mEkYgdKn/GVNpYSKvO5oHxP0U8a+e
   on:

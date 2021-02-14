@@ -1,18 +1,18 @@
 /*
-    This file is part of ethminer.
+    This file is part of vapminer.
 
-    ethminer is free software: you can redistribute it and/or modify
+    vapminer is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    ethminer is distributed in the hope that it will be useful,
+    vapminer is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with ethminer.  If not, see <http://www.gnu.org/licenses/>.
+    along with vapminer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
@@ -21,11 +21,11 @@
 #include <libdevcore/Exceptions.h>
 #include <libdevcore/Worker.h>
 
-#include <ethash/ethash.hpp>
+#include <vapash/vapash.hpp>
 
 namespace dev
 {
-namespace eth
+namespace vap
 {
 struct Result
 {
@@ -33,7 +33,7 @@ struct Result
     h256 mixHash;
 };
 
-class EthashAux
+class VapashAux
 {
 public:
     static Result eval(int epoch, h256 const& _headerHash, uint64_t _nonce) noexcept;
@@ -44,7 +44,7 @@ struct EpochContext
     int epochNumber;
     int lightNumItems;
     size_t lightSize;
-    const ethash_hash512* lightCache;
+    const vapash_hash512* lightCache;
     int dagNumItems;
     uint64_t dagSize;
 };
@@ -67,7 +67,7 @@ struct WorkPackage
     uint64_t startNonce = 0;
     uint16_t exSizeBytes = 0;
 
-    std::string algo = "ethash";
+    std::string algo = "vapash";
 };
 
 struct Solution
@@ -79,5 +79,5 @@ struct Solution
     unsigned midx;                                 // Originating miner Id
 };
 
-}  // namespace eth
+}  // namespace vap
 }  // namespace dev

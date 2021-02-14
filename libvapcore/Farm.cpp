@@ -1,38 +1,38 @@
 /*
- This file is part of ethminer.
+ This file is part of vapminer.
 
- ethminer is free software: you can redistribute it and/or modify
+ vapminer is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- ethminer is distributed in the hope that it will be useful,
+ vapminer is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with ethminer.  If not, see <http://www.gnu.org/licenses/>.
+ along with vapminer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
-#include <libethcore/Farm.h>
+#include <libvapcore/Farm.h>
 
-#if ETH_ETHASHCL
-#include <libethash-cl/CLMiner.h>
+#if ETH_VAPASHCL
+#include <libvapash-cl/CLMiner.h>
 #endif
 
-#if ETH_ETHASHCUDA
-#include <libethash-cuda/CUDAMiner.h>
+#if ETH_VAPASHCUDA
+#include <libvapash-cuda/CUDAMiner.h>
 #endif
 
-#if ETH_ETHASHCPU
-#include <libethash-cpu/CPUMiner.h>
+#if ETH_VAPASHCPU
+#include <libvapash-cpu/CPUMiner.h>
 #endif
 
 namespace dev
 {
-namespace eth
+namespace vap
 {
 Farm* Farm::m_this = nullptr;
 
@@ -205,12 +205,12 @@ void Farm::setWork(WorkPackage const& _newWp)
     // Retrieve appropriate EpochContext
     if (m_currentWp.epoch != _newWp.epoch)
     {
-        ethash::epoch_context _ec = ethash::get_global_epoch_context(_newWp.epoch);
+        vapash::epoch_context _ec = vapash::get_global_epoch_context(_newWp.epoch);
         m_currentEc.epochNumber = _newWp.epoch;
         m_currentEc.lightNumItems = _ec.light_cache_num_items;
-        m_currentEc.lightSize = ethash::get_light_cache_size(_ec.light_cache_num_items);
+        m_currentEc.lightSize = vapash::get_light_cache_size(_ec.light_cache_num_items);
         m_currentEc.dagNumItems = _ec.full_dataset_num_items;
-        m_currentEc.dagSize = ethash::get_full_dataset_size(_ec.full_dataset_num_items);
+        m_currentEc.dagSize = vapash::get_full_dataset_size(_ec.full_dataset_num_items);
         m_currentEc.lightCache = _ec.light_cache;
 
         for (auto const& miner : m_miners)
@@ -262,7 +262,7 @@ bool Farm::start()
         for (auto it = m_DevicesCollection.begin(); it != m_DevicesCollection.end(); it++)
         {
             TelemetryAccountType minerTelemetry;
-#if ETH_ETHASHCUDA
+#if ETH_VAPASHCUDA
             if (it->second.subscriptionType == DeviceSubscriptionTypeEnum::Cuda)
             {
                 minerTelemetry.prefix = "cu";
@@ -270,7 +270,7 @@ bool Farm::start()
                     new CUDAMiner(m_miners.size(), m_CUSettings, it->second)));
             }
 #endif
-#if ETH_ETHASHCL
+#if ETH_VAPASHCL
 
             if (it->second.subscriptionType == DeviceSubscriptionTypeEnum::OpenCL)
             {
@@ -279,7 +279,7 @@ bool Farm::start()
                     new CLMiner(m_miners.size(), m_CLSettings, it->second)));
             }
 #endif
-#if ETH_ETHASHCPU
+#if ETH_VAPASHCPU
 
             if (it->second.subscriptionType == DeviceSubscriptionTypeEnum::Cpu)
             {
@@ -492,7 +492,7 @@ void Farm::submitProofAsync(Solution const& _s)
 {
     if (!m_Settings.noEval)
     {
-        Result r = EthashAux::eval(_s.work.epoch, _s.work.header, _s.nonce);
+        Result r = VapashAux::eval(_s.work.epoch, _s.work.header, _s.nonce);
         if (r.value > _s.work.boundary)
         {
             accountSolution(_s.midx, SolutionAccountingEnum::Failed);
@@ -687,5 +687,5 @@ bool Farm::spawn_file_in_bin_dir(const char* filename, const std::vector<std::st
 }
 
 
-}  // namespace eth
+}  // namespace vap
 }  // namespace dev

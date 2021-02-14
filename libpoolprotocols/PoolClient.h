@@ -4,7 +4,7 @@
 
 #include <boost/asio/ip/address.hpp>
 
-#include <libethcore/Miner.h>
+#include <libvapcore/Miner.h>
 #include <libpoolprotocols/PoolURI.h>
 
 extern boost::asio::io_service g_io_service;
@@ -13,7 +13,7 @@ using namespace std;
 
 namespace dev
 {
-namespace eth
+namespace vap
 {
 struct Session
 {
@@ -30,7 +30,7 @@ struct Session
             .count();
     }
 
-    // EthereumStratum (1 and 2)
+    // VaporyStratum (1 and 2)
 
     // Extranonce currently active
     uint64_t extraNonce = 0;
@@ -40,12 +40,12 @@ struct Session
     h256 nextWorkBoundary =
         h256("0x00000000ffff0000000000000000000000000000000000000000000000000000");
 
-    // EthereumStratum (2 only)
+    // VaporyStratum (2 only)
     bool firstMiningSet = false;
     unsigned int timeout = 30;  // Default to 30 seconds
     string sessionId = "";
     string workerId = "";
-    string algo = "ethash";
+    string algo = "vapash";
     unsigned int epoch = 0;
     chrono::steady_clock::time_point lastTxStamp = chrono::steady_clock::now();
 
@@ -117,5 +117,5 @@ protected:
     Connected m_onConnected;
     WorkReceived m_onWorkReceived;
 };
-}  // namespace eth
+}  // namespace vap
 }  // namespace dev

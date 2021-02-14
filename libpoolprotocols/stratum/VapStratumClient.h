@@ -12,15 +12,15 @@
 
 #include <libdevcore/FixedHash.h>
 #include <libdevcore/Log.h>
-#include <libethcore/EthashAux.h>
-#include <libethcore/Farm.h>
-#include <libethcore/Miner.h>
+#include <libvapcore/VapashAux.h>
+#include <libvapcore/Farm.h>
+#include <libvapcore/Miner.h>
 
 #include "../PoolClient.h"
 
 using namespace std;
 using namespace dev;
-using namespace dev::eth;
+using namespace dev::vap;
 
 template <typename Verifier>
 class verbose_verification
@@ -54,9 +54,9 @@ public:
     enum StratumProtocol
     {
         STRATUM = 0,
-        ETHPROXY,
-        ETHEREUMSTRATUM,
-        ETHEREUMSTRATUM2
+        VAPPROXY,
+        VAPORYSTRATUM,
+        VAPORYSTRATUM2
     };
 
     EthStratumClient(int worktimeout, int responsetimeout);

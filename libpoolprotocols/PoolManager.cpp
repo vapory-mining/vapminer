@@ -4,7 +4,7 @@
 
 using namespace std;
 using namespace dev;
-using namespace eth;
+using namespace vap;
 
 PoolManager* PoolManager::m_this = nullptr;
 
@@ -162,7 +162,7 @@ void PoolManager::setClientHandlers()
         int _currentEpoch = m_currentWp.epoch;
         bool newEpoch = (_currentEpoch == -1);
 
-        // In EthereumStratum/2.0.0 epoch number is set in session
+        // In VaporyStratum/2.0.0 epoch number is set in session
         if (!newEpoch)
         {
             if (p_client->getConnection()->StratumMode() == 3)
@@ -185,8 +185,8 @@ void PoolManager::setClientHandlers()
                 if (m_currentWp.block >= 0)
                     m_currentWp.epoch = m_currentWp.block / 30000;
                 else
-                    m_currentWp.epoch = ethash::find_epoch_number(
-                        ethash::hash256_from_bytes(m_currentWp.seed.data()));
+                    m_currentWp.epoch = vapash::find_epoch_number(
+                        vapash::hash256_from_bytes(m_currentWp.seed.data()));
             }
         }
         else

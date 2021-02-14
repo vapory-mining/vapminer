@@ -1,18 +1,18 @@
 /*
- This file is part of ethminer.
+ This file is part of vapminer.
 
- ethminer is free software: you can redistribute it and/or modify
+ vapminer is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- ethminer is distributed in the hope that it will be useful,
+ vapminer is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with ethminer.  If not, see <http://www.gnu.org/licenses/>.
+ along with vapminer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
@@ -22,7 +22,7 @@
 #include <numeric>
 #include <string>
 
-#include "EthashAux.h"
+#include "VapashAux.h"
 #include <libdevcore/Common.h>
 #include <libdevcore/Log.h>
 #include <libdevcore/Worker.h>
@@ -37,7 +37,7 @@ using namespace std;
 
 namespace dev
 {
-namespace eth
+namespace vap
 {
 enum class DeviceTypeEnum
 {
@@ -474,5 +474,5 @@ private:
     atomic<bool> m_hashRateUpdate = {false};
 };
 
-}  // namespace eth
+}  // namespace vap
 }  // namespace dev

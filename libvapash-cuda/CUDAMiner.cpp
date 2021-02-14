@@ -1,28 +1,28 @@
 /*
-This file is part of ethminer.
+This file is part of vapminer.
 
-ethminer is free software: you can redistribute it and/or modify
+vapminer is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-ethminer is distributed in the hope that it will be useful,
+vapminer is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with ethminer.  If not, see <http://www.gnu.org/licenses/>.
+along with vapminer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <libethcore/Farm.h>
-#include <ethash/ethash.hpp>
+#include <libvapcore/Farm.h>
+#include <vapash/vapash.hpp>
 
 #include "CUDAMiner.h"
 
 using namespace std;
 using namespace dev;
-using namespace eth;
+using namespace vap;
 
 struct CUDAChannel : public LogChannel
 {
@@ -156,9 +156,9 @@ bool CUDAMiner::initEpoch_internal()
             m_epochContext.lightSize, cudaMemcpyHostToDevice));
 
         set_constants(dag, m_epochContext.dagNumItems, light,
-            m_epochContext.lightNumItems);  // in ethash_cuda_miner_kernel.cu
+            m_epochContext.lightNumItems);  // in vapash_cuda_miner_kernel.cu
 
-        ethash_generate_dag(
+        vapash_generate_dag(
             m_epochContext.dagSize, m_settings.gridSize, m_settings.blockSize, m_streams[0]);
 
         cudalog << "Generated DAG + Light in "
@@ -323,7 +323,7 @@ void CUDAMiner::enumDevices(std::map<string, DeviceDescriptor>& _DevicesCollecti
 }
 
 void CUDAMiner::search(
-    uint8_t const* header, uint64_t target, uint64_t start_nonce, const dev::eth::WorkPackage& w)
+    uint8_t const* header, uint64_t target, uint64_t start_nonce, const dev::vap::WorkPackage& w)
 {
     set_header(*reinterpret_cast<hash32_t const*>(header));
     if (m_current_target != target)
@@ -342,7 +342,7 @@ void CUDAMiner::search(
         buffer.count = 0;
 
         // Run the batch for this stream
-        run_ethash_search(m_settings.gridSize, m_settings.blockSize, stream, &buffer, start_nonce);
+        run_vapash_search(m_settings.gridSize, m_settings.blockSize, stream, &buffer, start_nonce);
     }
 
     // process stream batches until we get new work.
@@ -402,7 +402,7 @@ void CUDAMiner::search(
             // restart the stream on the next batch of nonces
             // unless we are done for this round.
             if (!done)
-                run_ethash_search(
+                run_vapash_search(
                     m_settings.gridSize, m_settings.blockSize, stream, &buffer, start_nonce);
 
             if (found_count)

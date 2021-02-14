@@ -1,33 +1,33 @@
 /*
-This file is part of ethminer.
+This file is part of vapminer.
 
-ethminer is free software: you can redistribute it and/or modify
+vapminer is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-ethminer is distributed in the hope that it will be useful,
+vapminer is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with ethminer.  If not, see <http://www.gnu.org/licenses/>.
+along with vapminer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
 
-#include "ethash_cuda_miner_kernel.h"
+#include "vapash_cuda_miner_kernel.h"
 
 #include <libdevcore/Worker.h>
-#include <libethcore/EthashAux.h>
-#include <libethcore/Miner.h>
+#include <libvapcore/VapashAux.h>
+#include <libvapcore/Miner.h>
 
 #include <functional>
 
 namespace dev
 {
-namespace eth
+namespace vap
 {
 class CUDAMiner : public Miner
 {
@@ -39,7 +39,7 @@ public:
     static void enumDevices(std::map<string, DeviceDescriptor>& _DevicesCollection);
 
     void search(
-        uint8_t const* header, uint64_t target, uint64_t _startN, const dev::eth::WorkPackage& w);
+        uint8_t const* header, uint64_t target, uint64_t _startN, const dev::vap::WorkPackage& w);
 
 protected:
     bool initDevice() override;
@@ -67,5 +67,5 @@ private:
 };
 
 
-}  // namespace eth
+}  // namespace vap
 }  // namespace dev

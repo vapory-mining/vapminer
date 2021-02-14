@@ -5,8 +5,8 @@
 #include <json/json.h>
 
 #include <libdevcore/Worker.h>
-#include <libethcore/Farm.h>
-#include <libethcore/Miner.h>
+#include <libvapcore/Farm.h>
+#include <libvapcore/Miner.h>
 
 #include "PoolClient.h"
 #include "getwork/EthGetworkClient.h"
@@ -17,7 +17,7 @@ using namespace std;
 
 namespace dev
 {
-namespace eth
+namespace vap
 {
 struct PoolSettings
 {
@@ -96,5 +96,5 @@ private:
     static PoolManager* m_this;
 };
 
-}  // namespace eth
+}  // namespace vap
 }  // namespace dev

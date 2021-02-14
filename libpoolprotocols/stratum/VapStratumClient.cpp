@@ -1,6 +1,6 @@
-#include <ethminer/buildinfo.h>
+#include <vapminer/buildinfo.h>
 #include <libdevcore/Log.h>
-#include <ethash/ethash.hpp>
+#include <vapash/vapash.hpp>
 
 #include "EthStratumClient.h"
 
@@ -372,7 +372,7 @@ void EthStratumClient::workloop_timer_elapsed(const boost::system::error_code& e
         return;
     }
 
-    // No msg from client (EthereumStratum/2.0.0)
+    // No msg from client (VaporyStratum/2.0.0)
     if (m_conn->StratumMode() == 3 && m_session)
     {
         auto s = duration_cast<seconds>(steady_clock::now() - m_session->lastTxStamp).count();
@@ -549,7 +549,7 @@ void EthStratumClient::connect_handler(const boost::system::error_code& ec)
 #endif
                 cwarn << "* Double check hostname in the -P argument.";
                 cwarn << "* Disable certificate verification all-together via environment "
-                         "variable. See ethminer --help for info about environment variables";
+                         "variable. See vapminer --help for info about environment variables";
                 cwarn << "If you do the latter please be advised you might expose yourself to the "
                          "risk of seeing your shares stolen";
             }
@@ -581,9 +581,9 @@ void EthStratumClient::connect_handler(const boost::system::error_code& ec)
     Otherwise let's go through an autodetection.
 
     Autodetection process passes all known stratum modes.
-    - 1st pass EthStratumClient::ETHEREUMSTRATUM2 (3)
-    - 2nd pass EthStratumClient::ETHEREUMSTRATUM  (2)
-    - 3rd pass EthStratumClient::ETHPROXY         (1)
+    - 1st pass EthStratumClient::VAPORYSTRATUM2 (3)
+    - 2nd pass EthStratumClient::VAPORYSTRATUM  (2)
+    - 3rd pass EthStratumClient::VAPPROXY         (1)
     - 4th pass EthStratumClient::STRATUM          (0)
     */
 
@@ -612,9 +612,9 @@ void EthStratumClient::connect_handler(const boost::system::error_code& ec)
 
         break;
 
-    case EthStratumClient::ETHPROXY:
+    case EthStratumClient::VAPPROXY:
 
-        jReq["method"] = "eth_submitLogin";
+        jReq["method"] = "vap_submitLogin";
         if (!m_conn->Workername().empty())
             jReq["worker"] = m_conn->Workername();
         jReq["params"].append(m_conn->User() + m_conn->Path());
@@ -623,21 +623,21 @@ void EthStratumClient::connect_handler(const boost::system::error_code& ec)
 
         break;
 
-    case EthStratumClient::ETHEREUMSTRATUM:
+    case EthStratumClient::VAPORYSTRATUM:
 
-        jReq["params"].append(ethminer_get_buildinfo()->project_name_with_version);
-        jReq["params"].append("EthereumStratum/1.0.0");
+        jReq["params"].append(vapminer_get_buildinfo()->project_name_with_version);
+        jReq["params"].append("VaporyStratum/1.0.0");
 
         break;
 
-    case EthStratumClient::ETHEREUMSTRATUM2:
+    case EthStratumClient::VAPORYSTRATUM2:
 
         jReq["method"] = "mining.hello";
         Json::Value jPrm;
-        jPrm["agent"] = ethminer_get_buildinfo()->project_name_with_version;
+        jPrm["agent"] = vapminer_get_buildinfo()->project_name_with_version;
         jPrm["host"] = m_conn->Host();
         jPrm["port"] = toCompactHex((uint32_t)m_conn->Port(), HexPrefix::DontAdd);
-        jPrm["proto"] = "EthereumStratum/2.0.0";
+        jPrm["proto"] = "VaporyStratum/2.0.0";
         jReq["params"] = jPrm;
 
         break;
@@ -730,7 +730,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
     string _errReason = "";        // Content of the error reason
     string _method = "";           // The method of the notification (or request from pool)
     unsigned _id = 0;  // This SHOULD be the same id as the request it is responding to (known
-                       // exception is ethermine.org using 999)
+                       // exception is vapermine.org using 999)
 
 
     // Retrieve essential values
@@ -741,7 +741,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
     _isNotification = (_method != "" || _id == unsigned(0));
 
     // Notifications of new jobs are like responses to get_work requests
-    if (_isNotification && _method == "" && m_conn->StratumMode() == EthStratumClient::ETHPROXY &&
+    if (_isNotification && _method == "" && m_conn->StratumMode() == EthStratumClient::VAPPROXY &&
         responseObject["result"].isArray())
     {
         _method = "mining.notify";
@@ -757,7 +757,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
         (_isNotification && (responseObject["params"].empty() && responseObject["result"].empty())))
     {
         cwarn << "Pool sent an invalid jsonrpc message...";
-        cwarn << "Do not blame ethminer for this. Ask pool devs to honor http://www.jsonrpc.org/ "
+        cwarn << "Do not blame vapminer for this. Ask pool devs to honor http://www.jsonrpc.org/ "
                  "specifications ";
         cwarn << "Disconnecting...";
         m_io_service.post(m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
@@ -779,7 +779,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
             /*
             This is the response to very first message after connection.
             Message request vary upon stratum flavour
-            I wish I could manage to have different Ids but apparently ethermine.org always replies
+            I wish I could manage to have different Ids but apparently vapermine.org always replies
             to first message with id=1 regardless the id originally sent.
             */
 
@@ -794,13 +794,13 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                 // Disconnect and Proceed with next step of autodetection
                 switch (m_conn->StratumMode())
                 {
-                case ETHEREUMSTRATUM2:
-                    cnote << "Negotiation of EthereumStratum/2.0.0 failed. Trying another ...";
+                case VAPORYSTRATUM2:
+                    cnote << "Negotiation of VaporyStratum/2.0.0 failed. Trying another ...";
                     break;
-                case ETHEREUMSTRATUM:
-                    cnote << "Negotiation of EthereumStratum/1.0.0 failed. Trying another ...";
+                case VAPORYSTRATUM:
+                    cnote << "Negotiation of VaporyStratum/1.0.0 failed. Trying another ...";
                     break;
-                case ETHPROXY:
+                case VAPPROXY:
                     cnote << "Negotiation of Eth-Proxy compatible failed. Trying another ...";
                     break;
                 case STRATUM:
@@ -818,19 +818,19 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
 
             /*
             Process response for each stratum flavour :
-            ETHEREUMSTRATUM2 response to mining.hello
-            ETHEREUMSTRATUM  response to mining.subscribe
-            ETHPROXY         response to eth_submitLogin
+            VAPORYSTRATUM2 response to mining.hello
+            VAPORYSTRATUM  response to mining.subscribe
+            VAPPROXY         response to vap_submitLogin
             STRATUM          response to mining.subscribe
             */
 
             switch (m_conn->StratumMode())
             {
-            case EthStratumClient::ETHEREUMSTRATUM2:
+            case EthStratumClient::VAPORYSTRATUM2:
 
                 _isSuccess = (jResult.isConvertibleTo(Json::ValueType::objectValue) &&
                               jResult.isMember("proto") &&
-                              jResult["proto"].asString() == "EthereumStratum/2.0.0" &&
+                              jResult["proto"].asString() == "VaporyStratum/2.0.0" &&
                               jResult.isMember("encoding") && jResult.isMember("resume") &&
                               jResult.isMember("timeout") && jResult.isMember("maxerrors") &&
                               jResult.isMember("node"));
@@ -839,7 +839,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                 {
                     // Selected flavour is confirmed
                     m_conn->SetStratumMode(3, true);
-                    cnote << "Stratum mode : EthereumStratum/2.0.0";
+                    cnote << "Stratum mode : VaporyStratum/2.0.0";
                     startSession();
 
                     // Send request for subscription
@@ -854,12 +854,12 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     if (m_conn->StratumModeConfirmed())
                     {
                         m_conn->MarkUnrecoverable();
-                        cnote << "Negotiation of EthereumStratum/2.0.0 failed. Change your "
+                        cnote << "Negotiation of VaporyStratum/2.0.0 failed. Change your "
                                  "connection parameters";
                     }
                     else
                     {
-                        cnote << "Negotiation of EthereumStratum/2.0.0 failed. Trying another ...";
+                        cnote << "Negotiation of VaporyStratum/2.0.0 failed. Trying another ...";
                     }
                     // Disconnect
                     m_io_service.post(
@@ -869,16 +869,16 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
 
                 break;
 
-            case EthStratumClient::ETHEREUMSTRATUM:
+            case EthStratumClient::VAPORYSTRATUM:
 
                 _isSuccess = (jResult.isArray() && jResult[0].isArray() && jResult[0].size() == 3 &&
                               jResult[0].get(Json::Value::ArrayIndex(2), "").asString() ==
-                                  "EthereumStratum/1.0.0");
+                                  "VaporyStratum/1.0.0");
                 if (_isSuccess)
                 {
                     // Selected flavour is confirmed
                     m_conn->SetStratumMode(2, true);
-                    cnote << "Stratum mode : EthereumStratum/1.0.0 (NiceHash)";
+                    cnote << "Stratum mode : VaporyStratum/1.0.0 (NiceHash)";
                     startSession();
                     m_session->subscribed.store(true, memory_order_relaxed);
                   
@@ -907,13 +907,13 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     if (m_conn->StratumModeConfirmed())
                     {
                         m_conn->MarkUnrecoverable();
-                        cnote << "Negotiation of EthereumStratum/1.0.0 (NiceHash) failed. Change "
+                        cnote << "Negotiation of VaporyStratum/1.0.0 (NiceHash) failed. Change "
                                  "your "
                                  "connection parameters";
                     }
                     else
                     {
-                        cnote << "Negotiation of EthereumStratum/1.0.0 (NiceHash) failed. Trying "
+                        cnote << "Negotiation of VaporyStratum/1.0.0 (NiceHash) failed. Trying "
                                  "another ...";
                     }
                     // Disconnect
@@ -924,7 +924,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
 
                 break;
 
-            case EthStratumClient::ETHPROXY:
+            case EthStratumClient::VAPPROXY:
 
                 if (_isSuccess)
                 {
@@ -938,7 +938,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
 
                     // Request initial work
                     jReq["id"] = unsigned(5);
-                    jReq["method"] = "eth_getWork";
+                    jReq["method"] = "vap_getWork";
                     jReq["params"] = Json::Value(Json::arrayValue);
                 }
                 else
@@ -1019,7 +1019,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
 
         else if (_id == 2)
         {
-            // For EthereumStratum/1.0.0
+            // For VaporyStratum/1.0.0
             // This is the response to mining.extranonce.subscribe
             // according to this
             // https://github.com/nicehash/Specifications/blob/master/NiceHash_extranonce_subscribe_extension.txt
@@ -1028,9 +1028,9 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
             // changes correctly
             // Nothing to do here.
 
-            // For EthereumStratum/2.0.0
+            // For VaporyStratum/2.0.0
             // This is the response to mining.subscribe
-            // https://github.com/AndreaLanfranchi/EthereumStratum-2.0.0#session-handling---response-to-subscription
+            // https://github.com/AndreaLanfranchi/VaporyStratum-2.0.0#session-handling---response-to-subscription
             if (m_conn->StratumMode() == 3)
             {
                 response_delay_ms = dequeue_response_plea();
@@ -1060,7 +1060,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
             }
         }
 
-        else if (_id == 3 && m_conn->StratumMode() != ETHEREUMSTRATUM2)
+        else if (_id == 3 && m_conn->StratumMode() != VAPORYSTRATUM2)
         {
             response_delay_ms = dequeue_response_plea();
 
@@ -1090,7 +1090,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
             }
         }
 
-        else if (_id == 3 && m_conn->StratumMode() == ETHEREUMSTRATUM2)
+        else if (_id == 3 && m_conn->StratumMode() == VAPORYSTRATUM2)
         {
             response_delay_ms = dequeue_response_plea();
 
@@ -1113,7 +1113,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
         }
 
         else if ((_id >= 40 && _id <= m_solution_submitted_max_id) &&
-                 m_conn->StratumMode() != ETHEREUMSTRATUM2)
+                 m_conn->StratumMode() != VAPORYSTRATUM2)
         {
             response_delay_ms = dequeue_response_plea();
 
@@ -1143,11 +1143,11 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
         }
 
         else if ((_id >= 40 && _id <= m_solution_submitted_max_id) &&
-                 m_conn->StratumMode() == ETHEREUMSTRATUM2)
+                 m_conn->StratumMode() == VAPORYSTRATUM2)
         {
             response_delay_ms = dequeue_response_plea();
 
-            // In EthereumStratum/2.0.0 we can evaluate the severity of the
+            // In VaporyStratum/2.0.0 we can evaluate the severity of the
             // error. An 2xx error means the solution have been accepted but is
             // likely stale
             bool isStale = false;
@@ -1180,9 +1180,9 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
         else if (_id == 5)
         {
             // This is the response we get on first get_work request issued
-            // in mode EthStratumClient::ETHPROXY
+            // in mode EthStratumClient::VAPPROXY
             // thus we change it to a mining.notify notification
-            if (m_conn->StratumMode() == EthStratumClient::ETHPROXY &&
+            if (m_conn->StratumMode() == EthStratumClient::VAPPROXY &&
                 responseObject["result"].isArray())
             {
                 _method = "mining.notify";
@@ -1205,7 +1205,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
         else if (_id == 999)
         {
             // This unfortunate case should not happen as none of the outgoing requests is marked
-            // with id 999 However it has been tested that ethermine.org responds with this id when
+            // with id 999 However it has been tested that vapermine.org responds with this id when
             // error replying to either mining.subscribe (1) or mining.authorize requests (3) To
             // properly handle this situation we need to rely on Subscribed/Authorized states
 
@@ -1214,13 +1214,13 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                 // Disconnect and Proceed with next step of autodetection
                 switch (m_conn->StratumMode())
                 {
-                case ETHEREUMSTRATUM2:
-                    cnote << "Negotiation of EthereumStratum/2.0.0 failed. Trying another ...";
+                case VAPORYSTRATUM2:
+                    cnote << "Negotiation of VaporyStratum/2.0.0 failed. Trying another ...";
                     break;
-                case ETHEREUMSTRATUM:
-                    cnote << "Negotiation of EthereumStratum/1.0.0 failed. Trying another ...";
+                case VAPORYSTRATUM:
+                    cnote << "Negotiation of VaporyStratum/1.0.0 failed. Trying another ...";
                     break;
-                case ETHPROXY:
+                case VAPPROXY:
                     cnote << "Negotiation of Eth-Proxy compatible failed. Trying another ...";
                     break;
                 case STRATUM:
@@ -1284,7 +1284,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
 
         unsigned prmIdx;
 
-        if (_method == "mining.notify" && m_conn->StratumMode() != ETHEREUMSTRATUM2)
+        if (_method == "mining.notify" && m_conn->StratumMode() != VAPORYSTRATUM2)
         {
             // Discard jobs if not properly subscribed
             // or if a job for this transmission has already
@@ -1297,7 +1297,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
             see issue # 1348
             */
 
-            if (m_conn->StratumMode() == EthStratumClient::ETHPROXY &&
+            if (m_conn->StratumMode() == EthStratumClient::VAPPROXY &&
                 responseObject.isMember("result"))
             {
                 jPrm = responseObject.get("result", Json::Value::null);
@@ -1314,7 +1314,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
             {
                 m_current.job = jPrm.get(Json::Value::ArrayIndex(0), "").asString();
 
-                if (m_conn->StratumMode() == EthStratumClient::ETHEREUMSTRATUM)
+                if (m_conn->StratumMode() == EthStratumClient::VAPORYSTRATUM)
                 {
                     string sSeedHash = jPrm.get(Json::Value::ArrayIndex(1), "").asString();
                     string sHeaderHash = jPrm.get(Json::Value::ArrayIndex(2), "").asString();
@@ -1341,10 +1341,10 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     string sShareTarget =
                         jPrm.get(Json::Value::ArrayIndex(prmIdx++), "").asString();
 
-                    // Only some eth-proxy compatible implementations carry the block number
-                    // namely ethermine.org
+                    // Only some vap-proxy compatible implementations carry the block number
+                    // namely vapermine.org
                     m_current.block = -1;
-                    if (m_conn->StratumMode() == EthStratumClient::ETHPROXY &&
+                    if (m_conn->StratumMode() == EthStratumClient::VAPPROXY &&
                         jPrm.size() > prmIdx &&
                         jPrm.get(Json::Value::ArrayIndex(prmIdx), "").asString().substr(0, 2) ==
                             "0x")
@@ -1386,7 +1386,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                 }
             }
         }
-        else if (_method == "mining.notify" && m_conn->StratumMode() == ETHEREUMSTRATUM2)
+        else if (_method == "mining.notify" && m_conn->StratumMode() == VAPORYSTRATUM2)
         {
             /*
             {
@@ -1432,9 +1432,9 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
             // at the end of the transmission.
             m_newjobprocessed = true;
         }
-        else if (_method == "mining.set_difficulty" && m_conn->StratumMode() == ETHEREUMSTRATUM)
+        else if (_method == "mining.set_difficulty" && m_conn->StratumMode() == VAPORYSTRATUM)
         {
-            if (m_conn->StratumMode() == EthStratumClient::ETHEREUMSTRATUM)
+            if (m_conn->StratumMode() == EthStratumClient::VAPORYSTRATUM)
             {
                 jPrm = responseObject.get("params", Json::Value::null);
                 if (jPrm.isArray())
@@ -1456,7 +1456,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
             }
         }
-        else if (_method == "mining.set_extranonce" && m_conn->StratumMode() == ETHEREUMSTRATUM)
+        else if (_method == "mining.set_extranonce" && m_conn->StratumMode() == VAPORYSTRATUM)
         {
             jPrm = responseObject.get("params", Json::Value::null);
             if (jPrm.isArray())
@@ -1466,7 +1466,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                     processExtranonce(enonce);
             }
         }
-        else if (_method == "mining.set" && m_conn->StratumMode() == ETHEREUMSTRATUM2)
+        else if (_method == "mining.set" && m_conn->StratumMode() == VAPORYSTRATUM2)
         {
             /*
             {
@@ -1474,7 +1474,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
               "params": {
                   "epoch" : "dc",
                   "target" : "0112e0be826d694b2e62d01511f12a6061fbaec8bc02357593e70e52ba",
-                  "algo" : "ethash",
+                  "algo" : "vapash",
                   "extranonce" : "af4c"
               }
             }
@@ -1503,12 +1503,12 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
                 m_session->nextWorkBoundary = h256(target);
             }
 
-            m_session->algo = jPrm.get("algo", "ethash").asString();
+            m_session->algo = jPrm.get("algo", "vapash").asString();
             string enonce = jPrm.get("extranonce", "").asString();
             if (!enonce.empty())
                 processExtranonce(enonce);
         }
-        else if (_method == "mining.bye" && m_conn->StratumMode() == ETHEREUMSTRATUM2)
+        else if (_method == "mining.bye" && m_conn->StratumMode() == VAPORYSTRATUM2)
         {
             cnote << m_conn->Host() << " requested connection close. Disconnecting ...";
             m_io_service.post(m_io_strand.wrap(boost::bind(&EthStratumClient::disconnect, this)));
@@ -1516,7 +1516,7 @@ void EthStratumClient::processResponse(Json::Value& responseObject)
         else if (_method == "client.get_version")
         {
             jReq["id"] = _id;
-            jReq["result"] = ethminer_get_buildinfo()->project_name_with_version;
+            jReq["result"] = vapminer_get_buildinfo()->project_name_with_version;
 
             if (_rpcVer == 1)
             {
@@ -1558,13 +1558,13 @@ void EthStratumClient::submitHashrate(uint64_t const& rate, string const& id)
     {
         // There is no stratum method to submit the hashrate so we use the rpc variant.
         // Note !!
-        // id = 6 is also the id used by ethermine.org and nanopool to push new jobs
+        // id = 6 is also the id used by vapermine.org and nanopool to push new jobs
         // thus we will be in trouble if we want to check the result of hashrate submission
         // actually change the id from 6 to 9
         jReq["jsonrpc"] = "2.0";
         if (!m_conn->Workername().empty())
             jReq["worker"] = m_conn->Workername();
-        jReq["method"] = "eth_submitHashrate";
+        jReq["method"] = "vap_submitHashrate";
         jReq["params"].append(toHex(rate, HexPrefix::Add, 32));  // Already expressed as hex
         jReq["params"].append(id);                               // Already prefixed by 0x
     }
@@ -1620,9 +1620,9 @@ void EthStratumClient::submitSolution(const Solution& solution)
 
         break;
 
-    case EthStratumClient::ETHPROXY:
+    case EthStratumClient::VAPPROXY:
 
-        jReq["method"] = "eth_submitWork";
+        jReq["method"] = "vap_submitWork";
         jReq["params"].append(toHex(solution.nonce, HexPrefix::Add));
         jReq["params"].append(solution.work.header.hex(HexPrefix::Add));
         jReq["params"].append(solution.mixHash.hex(HexPrefix::Add));
@@ -1631,7 +1631,7 @@ void EthStratumClient::submitSolution(const Solution& solution)
 
         break;
 
-    case EthStratumClient::ETHEREUMSTRATUM:
+    case EthStratumClient::VAPORYSTRATUM:
 
         jReq["params"].append(m_conn->UserDotWorker());
         jReq["params"].append(solution.work.job);
@@ -1639,7 +1639,7 @@ void EthStratumClient::submitSolution(const Solution& solution)
             toHex(solution.nonce, HexPrefix::DontAdd).substr(solution.work.exSizeBytes));
         break;
         
-    case EthStratumClient::ETHEREUMSTRATUM2:
+    case EthStratumClient::VAPORYSTRATUM2:
 
         jReq["params"].append(solution.work.job);
         jReq["params"].append(
@@ -1857,7 +1857,7 @@ void EthStratumClient::onSendSocketDataCompleted(const boost::system::error_code
     else
     {
         // Register last transmission tstamp to prevent timeout
-        // in EthereumStratum/2.0.0
+        // in VaporyStratum/2.0.0
         if (m_session && m_conn->StratumMode() == 3)
             m_session->lastTxStamp = chrono::steady_clock::now();
 

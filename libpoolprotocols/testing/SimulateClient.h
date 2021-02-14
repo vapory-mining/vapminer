@@ -3,15 +3,15 @@
 #include <iostream>
 
 #include <libdevcore/Worker.h>
-#include <libethcore/EthashAux.h>
-#include <libethcore/Farm.h>
-#include <libethcore/Miner.h>
+#include <libvapcore/VapashAux.h>
+#include <libvapcore/Farm.h>
+#include <libvapcore/Miner.h>
 
 #include "../PoolClient.h"
 
 using namespace std;
 using namespace dev;
-using namespace eth;
+using namespace vap;
 
 class SimulateClient : public PoolClient, Worker
 {

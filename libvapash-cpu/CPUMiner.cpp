@@ -1,18 +1,18 @@
 /*
-This file is part of ethminer.
+This file is part of vapminer.
 
-ethminer is free software: you can redistribute it and/or modify
+vapminer is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-ethminer is distributed in the hope that it will be useful,
+vapminer is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with ethminer.  If not, see <http://www.gnu.org/licenses/>.
+along with vapminer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
@@ -29,8 +29,8 @@ along with ethminer.  If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 #endif
 
-#include <libethcore/Farm.h>
-#include <ethash/ethash.hpp>
+#include <libvapcore/Farm.h>
+#include <vapash/vapash.hpp>
 
 #include <boost/version.hpp>
 
@@ -57,7 +57,7 @@ along with ethminer.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 using namespace dev;
-using namespace eth;
+using namespace vap;
 
 
 /* ################## OS-specific functions ################## */
@@ -247,7 +247,7 @@ bool CPUMiner::initEpoch_internal()
    Miner should stop working on the current block
    This happens if a
      * new work arrived                       or
-     * miner should stop (eg exit ethminer)   or
+     * miner should stop (eg exit vapminer)   or
      * miner should pause
 */
 void CPUMiner::kick_miner()
@@ -257,13 +257,13 @@ void CPUMiner::kick_miner()
 }
 
 
-void CPUMiner::search(const dev::eth::WorkPackage& w)
+void CPUMiner::search(const dev::vap::WorkPackage& w)
 {
     constexpr size_t blocksize = 30;
 
-    const auto& context = ethash::get_global_epoch_context_full(w.epoch);
-    const auto header = ethash::hash256_from_bytes(w.header.data());
-    const auto boundary = ethash::hash256_from_bytes(w.boundary.data());
+    const auto& context = vapash::get_global_epoch_context_full(w.epoch);
+    const auto header = vapash::hash256_from_bytes(w.header.data());
+    const auto boundary = vapash::hash256_from_bytes(w.boundary.data());
     auto nonce = w.startNonce;
 
     while (true)
@@ -278,7 +278,7 @@ void CPUMiner::search(const dev::eth::WorkPackage& w)
             break;
 
 
-        auto r = ethash::search(context, header, boundary, nonce, blocksize);
+        auto r = vapash::search(context, header, boundary, nonce, blocksize);
         if (r.solution_found)
         {
             h256 mix{reinterpret_cast<byte*>(r.mix_hash.bytes), h256::ConstructFromPointer};
@@ -322,7 +322,7 @@ void CPUMiner::workLoop()
             continue;
         }
 
-        if (w.algo == "ethash")
+        if (w.algo == "vapash")
         {
             // Epoch change ?
             if (current.epoch != w.epoch)
@@ -373,7 +373,7 @@ void CPUMiner::enumDevices(std::map<string, DeviceDescriptor>& _DevicesCollectio
 
         s.str("");
         s.clear();
-        s << "ethash::eval()/boost " << (BOOST_VERSION / 100000) << "."
+        s << "vapash::eval()/boost " << (BOOST_VERSION / 100000) << "."
           << (BOOST_VERSION / 100 % 1000) << "." << (BOOST_VERSION % 100);
         deviceDescriptor.name = s.str();
         deviceDescriptor.uniqueId = uniqueId;

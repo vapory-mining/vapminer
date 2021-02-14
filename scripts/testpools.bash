@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 ## vim:set ft=bash ts=4 sw=4 et:
 #
-# Testscript to test ethminer multiple pools/hosts/syntaxes
-# Put this script in the bin directory of ethminer and start running
+# Testscript to test vapminer multiple pools/hosts/syntaxes
+# Put this script in the bin directory of vapminer and start running
 #
 # Run each host 30 times (having a sleep time of 5 sec) which
 # means we run one host max 150sec and wait for one of the following
@@ -16,7 +16,7 @@
 # implementation and  pool handling parts we can honor by using his
 # donation wallet adresses
 
-# export some vars as "./ethminer" could be still a wrapper script
+# export some vars as "./vapminer" could be still a wrapper script
 export ETH_WALLET="0x9E431042fAA3224837e9BEDEcc5F4858cf0390B9"
 export WORKERNAME="pooltester"
 export EMAIL="andrea.lanfranchi%40gmail.com"
@@ -77,13 +77,13 @@ POOLS="$POOLS stratum1+tcp://ETH_WALLET.WORKERNAME@us.flexpool.io:4444"
 POOLS="$POOLS stratum1+ssl://ETH_WALLET.WORKERNAME@eu.flexpool.io:5555"
 POOLS="$POOLS stratum1+ssl://ETH_WALLET.WORKERNAME@us.flexpool.io:5555"
 #miningpoolhub.com
-POOLS="$POOLS stratum2+tcp://USERNAME%2eWORKERNAME:WORKERPWD@asia.ethash-hub.miningpoolhub.com:20535"
-POOLS="$POOLS stratum2+tcp://USERNAME%2eWORKERNAME:WORKERPWD@europe.ethash-hub.miningpoolhub.com:20535"
-POOLS="$POOLS stratum2+tcp://USERNAME%2eWORKERNAME:WORKERPWD@us-east.ethash-hub.miningpoolhub.com:20535"
+POOLS="$POOLS stratum2+tcp://USERNAME%2eWORKERNAME:WORKERPWD@asia.vapash-hub.miningpoolhub.com:20535"
+POOLS="$POOLS stratum2+tcp://USERNAME%2eWORKERNAME:WORKERPWD@europe.vapash-hub.miningpoolhub.com:20535"
+POOLS="$POOLS stratum2+tcp://USERNAME%2eWORKERNAME:WORKERPWD@us-east.vapash-hub.miningpoolhub.com:20535"
 #miningpoolhub.com-ssl - see issue 1629 - seems not working
-#POOLS="$POOLS stratum2+ssl://USERNAME%2eWORKERNAME:WORKERPWD@asia.ethash-hub.miningpoolhub.com:20535"
-#POOLS="$POOLS stratum2+ssl://USERNAME%2eWORKERNAME:WORKERPWD@europe.ethash-hub.miningpoolhub.com:20535"
-#POOLS="$POOLS stratum2+ssl://USERNAME%2eWORKERNAME:WORKERPWD@us-east.ethash-hub.miningpoolhub.com:20535"
+#POOLS="$POOLS stratum2+ssl://USERNAME%2eWORKERNAME:WORKERPWD@asia.vapash-hub.miningpoolhub.com:20535"
+#POOLS="$POOLS stratum2+ssl://USERNAME%2eWORKERNAME:WORKERPWD@europe.vapash-hub.miningpoolhub.com:20535"
+#POOLS="$POOLS stratum2+ssl://USERNAME%2eWORKERNAME:WORKERPWD@us-east.vapash-hub.miningpoolhub.com:20535"
 #nanopool.org
 POOLS="$POOLS stratum1+tcp://ETH_WALLET@eth-asia1.nanopool.org:9999/WORKERNAME/EMAIL"
 POOLS="$POOLS stratum1+tcp://ETH_WALLET@eth-eu1.nanopool.org:9999/WORKERNAME/EMAIL"
@@ -156,9 +156,9 @@ for pool in $POOLS; do
     pool=$(echo "${pool/BTC_WALLET/$BTC_WALLET}")
 
     echo "Testing=$current_test_pattern"
-    echo "./ethminer -v 1 --exit --report-hashrate -P $pool $@"
-    echo "./ethminer -v 1 --exit --report-hashrate -P $pool $@" > log.txt
-    ./ethminer -v 1 --exit --report-hashrate -P $pool $@ >> log.txt 2>&1 &
+    echo "./vapminer -v 1 --exit --report-hashrate -P $pool $@"
+    echo "./vapminer -v 1 --exit --report-hashrate -P $pool $@" > log.txt
+    ./vapminer -v 1 --exit --report-hashrate -P $pool $@ >> log.txt 2>&1 &
     pid=$!
     #echo "PID=$pid"
 

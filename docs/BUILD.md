@@ -104,7 +104,7 @@ If you want to use locally installed [ROCm-OpenCL](https://rocmdocs.amd.com/en/l
 
 Complete sample Windows batch file - **adapt it to your system**. Assumes that:
 
-* it's placed one folder up from the ethminer source folder
+* it's placed one folder up from the vapminer source folder
 * you have CMake installed
 * you have Perl installed
 
@@ -119,13 +119,13 @@ rem add Perl in PATH; it's needed for OpenSSL build
 set "PERL_PATH=C:\Perl\perl\bin"
 set "PATH=%PERL_PATH%;%PATH%"
 
-rem switch to ethminer's source folder
-cd "%~dp0\ethminer\"
+rem switch to vapminer's source folder
+cd "%~dp0\vapminer\"
 
 if not exist "build\" mkdir "build\"
 
 rem For CUDA 9.x pass also `-T v140`
-cmake -G "Visual Studio 15 2017 Win64" -H. -Bbuild -DETHASHCL=ON -DETHASHCUDA=ON -DAPICORE=ON ..
+cmake -G "Visual Studio 15 2017 Win64" -H. -Bbuild -DVAPASHCL=ON -DVAPASHCUDA=ON -DAPICORE=ON ..
 cmake --build . --config Release --target package
 
 endlocal
@@ -137,11 +137,11 @@ pause
 Pass these options to CMake configuration command, e.g.
 
 ```shell
-cmake .. -DETHASHCUDA=ON -DETHASHCL=OFF
+cmake .. -DVAPASHCUDA=ON -DVAPASHCL=OFF
 ```
 
-* `-DETHASHCL=ON` - enable OpenCL mining, `ON` by default.
-* `-DETHASHCUDA=ON` - enable CUDA mining, `ON` by default.
+* `-DVAPASHCL=ON` - enable OpenCL mining, `ON` by default.
+* `-DVAPASHCUDA=ON` - enable CUDA mining, `ON` by default.
 * `-DAPICORE=ON` - enable API Server, `ON` by default.
 * `-DBINKERN=ON` - install AMD binary kernels, `ON` by default.
 * `-DETHDBUS=ON` - enable D-Bus support, `OFF` by default.

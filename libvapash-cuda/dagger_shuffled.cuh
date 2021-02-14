@@ -1,6 +1,6 @@
-#include "ethash_cuda_miner_kernel_globals.h"
+#include "vapash_cuda_miner_kernel_globals.h"
 
-#include "ethash_cuda_miner_kernel.h"
+#include "vapash_cuda_miner_kernel.h"
 
 #include "cuda_helper.h"
 

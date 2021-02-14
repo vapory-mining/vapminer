@@ -22,8 +22,8 @@ If applicable, add screenshots to help explain your problem.
 **Environment (please complete the following information):**
 - Operating System: [e.g. Windows 10]
 - Hardware [e.g. GTX 1070]
-- Ethminer Version [e.g. 0.14]
-- Ethminer options used
+- Vapminer Version [e.g. 0.14]
+- Vapminer options used
 
 **Additional context**
 Add any other context about the problem here.

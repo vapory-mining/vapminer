@@ -8,7 +8,7 @@ include(CheckCXXCompilerFlag)
 #    if(check_cxx_compiler_flag(flag))
 #        add_compile_options(flag)
 #
-function(eth_add_cxx_compiler_flag_if_supported FLAG)
+function(vap_add_cxx_compiler_flag_if_supported FLAG)
   # Remove leading - or / from the flag name.
   string(REGEX REPLACE "^-|/" "" name ${FLAG})
   check_cxx_compiler_flag(${FLAG} ${name})
@@ -31,7 +31,7 @@ endfunction()
 #    if(check_cxx_compiler_flag(flag))
 #        CMAKE_CXX_LINK_FLAGS += flag
 #
-function(eth_add_cxx_linker_flag_if_supported FLAG)
+function(vap_add_cxx_linker_flag_if_supported FLAG)
   # Remove leading - or / from the flag name.
   string(REGEX REPLACE "^-|/" "" name ${FLAG})
   check_cxx_compiler_flag(${FLAG} ${name})
