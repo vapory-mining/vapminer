@@ -3,5 +3,5 @@ hunter_config(Boost VERSION 1.66.0)
 
 hunter_config(vapash VERSION 0.4.3
     URL https://github.com/marlonhanks/vapash/archive/v0.4.3.tar.gz
-    SHA1 e32b6398269ffb605875cae0c9ef6644c1631633
+    SHA1 c4afb2cc6f56931ed8e433e80aae9553c6fc4662
 )
